@@ -23,7 +23,7 @@ github_username:  nwuensche
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-cayman
+theme: minima
 gems:
   - jekyll-feed
 exclude:
