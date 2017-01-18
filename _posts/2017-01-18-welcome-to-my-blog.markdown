@@ -1,9 +1,10 @@
 ---
-layout: page
-title: About Flying Bytes
-permalink: /about/
+layout: post
+title: "Welcome to my Blog"
+date: 2017-01-18 12:00:00 +0100
+categories: about
 ---
-# Welcome to my Blog!
+#Hello!
 
 My name is Niklas and I'm a computer science student from Germany. I love to program, mainly in Java.
 
@@ -11,3 +12,4 @@ I'm creating this blog to write about interesting things I found out about Java 
 If you are fascinated by programming, then please join the discussion in the comment section! I'm really interested in hearing your opinion.
 
 Have a nice day and I hope to hear you soon!
+
