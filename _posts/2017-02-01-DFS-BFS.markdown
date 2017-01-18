@@ -1,0 +1,169 @@
+---
+layout: post
+title:  "Implementing a Depth First Search (DFS) and a Breadth First Search (BFS) with Java 8 Streams"
+date:   2017-01-02 10:00:00 +0100
+categories: java8 functionalProgramming functional
+---
+
+Hello everybody,
+
+searching through graphs and trees is one of the standard problems of every programmer. Not least because it is a standard job interview question.
+And as I read and watched a lot about functional programming in Java 8, I considered to write an implementation of the BFS and the DFS with the help of streams.
+For this post, you should already know what a BFS and DFS looks like.
+
+# Prerequires
+
+Before we start with the implementation of the algorithms, we need a class for the nodes.
+I will use a binary tree here, but you can adapt the algorithms to any kind of graph/tree.
+
+{% highlight java %}
+public class Node {
+
+    private Node left;
+    private Node right;
+    private String label;
+
+    public Node(@NotNull String label, @Nullable Node left, @Nullable Node right) {
+        this.left = left;
+        this.right = right;
+        this.label = label;
+    }
+
+    @Override
+    public String toString() {
+        return label;
+    }
+
+    public List<Node> getChildren() {
+        return Arrays.asList(left, right)
+                .stream()
+                .filter(Predicate.isEqual(null).negate())
+                .collect(Collectors.toList());
+    }
+
+}
+{% endhighlight %}
+
+This is the node class. Every note has zero, one or two childs. If a child should not exist, you can set it to null in the construcutor.
+The label helps with the identification later on.
+We can see the first use of a stream in the `getChildren()` method. If you can't imagine what a stream looks like, then imagine a list with some extra features.
+
+First of, we create a List of the left and right child node. We stream this list to use the filter method on it.
+The reason we want to filter is that we do not want to give null nodes back. They would cause NullPointerExceptions later on.
+In the end, we store(collect) everything in a List and give it back.
+
+# Depth First Search (DFS)
+
+Now, let's talk about the DFS. We want a method which takes a root and returns a list of all nodes it finds, in the order of a DFS.
+
+{% highlight java %}
+public class Node {
+
+    //...
+
+    public List<Node> searchByDepth() {
+        List<Node> visitedNodes = new LinkedList<>();
+        List<Node> unvisitedNodes = new LinkedList<>();
+        unvisitedNodes.add(this);
+
+        while(!unvisitedNodes.isEmpty()) {
+            Node currNode = unvisitedNodes.remove(0);
+
+            List<Node> newNodes = currNode.getChildren()
+                    .stream()
+                    .filter(node -> !visitedNodes.contains(node))
+                    .collect(Collectors.toList());
+
+            unvisitedNodes.addAll(0, newNodes);
+            visitedNodes.add(currNode);
+        }
+
+        return visitedNodes;
+    }
+
+}
+{% endhighlight %}
+
+
+Let me explain this snippet.
+We have two lists. We store the nodes which we already visited in the `visitedNode` list, and the unvisited in the `unvistedNotes` list.
+Before we start the real DFS, we have to add the root of the graph, which is the node this method was called on, to the `unvisitedNotes`.
+
+Now, we have to visited every reamining node that we have not visited. That's what the loop is good for.
+We take the first node that we have not visited from the list. Then we stream over the list of child nodes.
+We want to filter out every node that we already visited (to eliminate circles) and collect it again in a list.
+
+Here you can also see why the number of children is irrelevant for the algorithm to work. The number of child nodes could be 1, 3 or any number,
+you just have to give back a different number of notes in the `getChildren()` method.
+
+Now we have a list of new nodes that we can reach from the current node and which we haven't visited already. Next up, we add these nodes in the beginning of our unvisited nodes list.
+We do this, because we want to go deeper into the graph (that's the reason we use a DFS 😉 ) We visited the `currentNode`, so we can add it to the list of visited nodes.
+When there is no unvisited node left, and so we visited all reachable nodes, we return the list of visitedNodes.
+
+And this was the DFS with the help of streams. I like this functional way a lot more than the imperative one. It increases the readability of the code.
+
+# Breadth First Search (BFS)
+
+Next of, the snippet of the BFS.
+
+{% highlight java %}
+public class Node {
+
+    //...
+
+    public List<Node> searchByBreadth() {
+        List<Node> visitedNodes = new LinkedList<>();
+        List<Node> unvisitedNodes = Arrays.asList(this);
+
+        while(!unvisitedNodes.isEmpty()) {
+            List<Node> newNodes = unvisitedNodes
+                    .stream()
+                    .map(Node::getChildren)
+                    .flatMap(List::stream)
+                    .filter(node -> !visitedNodes.contains(node))
+                    .collect(Collectors.toList());
+
+            visitedNodes.addAll(unvisitedNodes);
+            unvisitedNodes = newNodes;
+        }
+
+        return visitedNodes;
+    }
+
+}
+{% endhighlight %}
+
+As you can see, the beginning of the BFS is the same as the one of the DFS.
+But as you know, we search for new nodes by the layers of the graph, not node after node (this would be the idea of the DFS). 
+The idea of the BFS is that we search the child nodes of the next layer for all nodes of the current layer. 
+That's the reason we can work over the whole list of `unvisitedNodes`, not just over the first node of the list.
+
+We use map to create a new stream which contains all the child notes of all the `unvisitedNodes`. This new stream is of type `Stream<List<Nodes>>`, because `getChildren()` returns a list of nodes. If you are not familliar with this notation:
+
+{% highlight java %}
+.map(Node::getChildren)
+{% endhighlight %}
+is the same as:
+{% highlight java %}
+.map(node -> node.getChildren()) .
+{% endhighlight %}
+
+But we want to have a stream of nodes, not a stream of list of nodes. That's the reason we use `flatMap`. It creates a stream of every list and connects all these new stream to one big one. So `Stream<List<Nodes>>` becomes `Stream<Nodes>` again. 
+These are the nodes of the next layer. The filter does the same as in the DFS. Every node that was visited before will be filtered out.
+
+And in the end, we collect a `List<Nodes>` out of `Stream<Nodes>` and store them in a `newNodes` list, like in the DFS example. We have visited all notes of the current layer. 
+That's the reason we add all of them to the `visitedNodes`. The new notes we found are the `unvistedNodes` of the next iteration. We do this as long as we find new nodes.
+
+When we collected all visited nodes, we can stop the loop and return the list of visited nodes. We added the Nodes in this list layer by layer, so it has the sorting of a BFS.
+
+# Conclusion
+
+Working with streams can improve your code quality a lot. They help you to split a big task into many small ones, which you can solve one at a time. I like functional programming and Haskell in particular. The way that Java 8 goes with Lambdas, Streams and Optionals is IMHO a good step and a lot of imperative algorithms can be decluttered with the help of them.
+
+Would you like to read more about functional programming in Java? Should I also write an introduction for it? And what do you think about the DFS and BFS in Java 8? Here is a [Gist][gist] with the working code.
+
+Thank you for reading and have a nice day,
+
+Niklas
+
+[gist]: https://gist.github.com/NWuensche/c5d54b650620491b73a30514d3200269
