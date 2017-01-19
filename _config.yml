@@ -23,7 +23,7 @@ github_username:  nwuensche
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-minimal
+theme: jekyll-theme-tactile
 gems:
   - jekyll-feed
 exclude:
