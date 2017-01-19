@@ -12,7 +12,7 @@ searching through graphs and trees is one of the standard problems of every prog
 And as I read and watched a lot about functional programming in Java 8, I considered to write an implementation of the BFS and the DFS with the help of streams.
 For this post, you should already know what a BFS and DFS looks like.
 
-# Prerequires
+## Prerequires
 
 Before we start with the implementation of the algorithms, we need a class for the nodes.
 I will use a binary tree here, but you can adapt the algorithms to any kind of graph/tree.
@@ -53,7 +53,7 @@ First of, we create a List of the left and right child node. We stream this list
 The reason we want to filter is that we do not want to give null nodes back. They would cause NullPointerExceptions later on.
 In the end, we store(collect) everything in a List and give it back.
 
-# Depth First Search (DFS)
+## Depth First Search (DFS)
 
 Now, let's talk about the DFS. We want a method which takes a root and returns a list of all nodes it finds, in the order of a DFS.
 
@@ -103,7 +103,7 @@ When there is no unvisited node left, and so we visited all reachable nodes, we 
 
 And this was the DFS with the help of streams. I like this functional way a lot more than the imperative one. It increases the readability of the code.
 
-# Breadth First Search (BFS)
+## Breadth First Search (BFS)
 
 Next of, the snippet of the BFS.
 
@@ -157,7 +157,7 @@ That's the reason we add all of them to the `visitedNodes`. The new notes we fou
 
 When we collected all visited nodes, we can stop the loop and return the list of visited nodes. We added the Nodes in this list layer by layer, so it has the sorting of a BFS.
 
-# Conclusion
+## Conclusion
 
 Working with streams can improve your code quality a lot. They help you to split a big task into many small ones, which you can solve one at a time. I like functional programming and Haskell in particular. The way that Java 8 goes with Lambdas, Streams and Optionals is IMHO a good step and a lot of imperative algorithms can be decluttered with the help of them.
 
