@@ -5,7 +5,7 @@ date: 2017-01-16 12:00:00 +0100
 categories: java8 functionalProgramming introduction Motivation part0
 ---
 
-As I've seen in my previous post, the interest in functional programming is high. This is the reason I want to write an introduction about it.
+As I've seen in my [previous post][prev-post], the interest in functional programming is high. This is the reason I want to write an introduction about it.
 
 I work a lot in Haskell and Java in my free time. The idea to combine both of these languages in Java was a dream come true. After this introduction, I hope you will feel the same.
 
@@ -146,3 +146,26 @@ And don't worry, in the beginning you can mix OOP and FP in your code.
 In the next part, we will talk about functions as parameters. Therefore, I will introduce anonymous function(*lambdas*) and method references.
 
 I hope you liked this short introduction in the big topic of functional programming. Please write me when something's not clear. Or are there any reason for you to hate functional programming at all? I would love to discuss these topics with you.
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//flyingbytes.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                )
+[prev-post]: https://nwuensche.github.io/java8/functionalprogramming/functional/2017/01/02/DFS-BFS.html
