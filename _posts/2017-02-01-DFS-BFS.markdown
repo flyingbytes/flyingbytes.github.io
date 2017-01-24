@@ -166,7 +166,6 @@ Thank you for reading and have a nice day,
 
 Niklas
 
-{% if page.comments %}
 <div id="disqus_thread"></div>
 <script>
 
@@ -188,6 +187,5 @@ s.setAttribute('data-timestamp', +new Date());
 </script>
 
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-{% endif %}
 
 [gist]: https://gist.github.com/NWuensche/c5d54b650620491b73a30514d3200269
