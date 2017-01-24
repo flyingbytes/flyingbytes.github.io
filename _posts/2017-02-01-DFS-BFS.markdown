@@ -3,7 +3,7 @@ layout: post
 title:  "Implementing a Depth First Search (DFS) and a Breadth First Search (BFS) with Java 8 Streams"
 date:   2017-01-02 10:00:00 +0100
 comments: true
-categories: java8 functionalProgramming functional
+categories: programming java8 functional DFSandBFS
 ---
 
 Hello everybody,

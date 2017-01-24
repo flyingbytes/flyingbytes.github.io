@@ -2,7 +2,7 @@
 layout: post
 title: "An Introduction to Functional Programming in Java 8: Part 0 - Motivation"
 date: 2017-01-16 12:00:00 +0100
-categories: java8 functionalProgramming introduction Motivation part0
+categories: programming java8 functional part0
 ---
 
 As I've seen in my [previous post][prev-post], the interest in functional programming is high. This is the reason I want to write an introduction about it.
