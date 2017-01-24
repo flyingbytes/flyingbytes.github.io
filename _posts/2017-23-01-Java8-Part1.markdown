@@ -2,7 +2,6 @@
 layout: post
 title:  "An Introduction to Functional Programming in Java 8: Part 1 - Functions as Objects"
 date:   2017-01-23 13:00:00 +0100
-comments: true
 categories: programming java8 functional part1
 ---
 
