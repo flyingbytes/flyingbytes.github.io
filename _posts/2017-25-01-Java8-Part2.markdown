@@ -1,0 +1,183 @@
+---
+layout: post
+title:  "An Introduction to Functional Programming in Java 8: Part 1 - Functions as Objects"
+date:   2017-01-23 13:00:00 +0100
+categories: programming java8 functional part1
+---
+
+Hello everybody,
+
+After you've read in [Part 0][part0] why functional programming is cool, we will make our first big steps into this topic today.
+In Java 8, functions became [first class][firstClassFunctions]. Therefore, you can take functions as arguments of other functions, return functions and store functions as objects.
+
+## Why should you store a function as an object?
+
+### 1. Make "super private" functions
+As you know, code quality is important. That's the reason we use private functions to reduce the methods one object of a class has. We don't want to show the underlying code to others, they just have to work with some public methods on the object. But what if we want to create functions in our class which are visible to just one method and invisble to the rest of the class? With functions as first class objects, We can store the function in a single object, which can be seen just in this very one method.
+
+### 2. Upgrade Design Patterns
+If you ever worked with on a big software project you know how messy it can become. That's the reason design patterns were invented.
+One of the cooler ones is the strategy pattern. I will write a detailed post about it later on, but what it basically does is to switch similar algorithms, depending on a parameter.
+For each algorithm, you have to write your own class, which implements a function from an interface.
+But when you can store functions in an object, you just need one "function object" for each algorithm. That makes the code much clearer and smaller.
+
+### 3. Create "higher-order" functions
+Now comes the fun part. You can use every object as a parameter of a method. So why not call a method with a function argument? Methods which take a function as a parameter or return one, are called higher-order functions. Before I can give you an example we have to learn how to store a function in an object.
+
+## Storing a function in an Object
+In Java 8, the [java.util.Function<T, R> Interface][java8FunctionInterface] was introduced. It can store a function which takes one argument and returns an object. The Generic *T* is the type of the argument and *R* the type of the object you return.
+
+### Example: compute function
+This is a very easy example of a higher-order function. It takes a function and an Integer and computes the given function with the Integer.
+
+{% highlight java %}
+public static Integer compute(Function<Integer, Integer> function, Integer value) {
+    return function.apply(value);
+}
+{% endhighlight %}
+
+And now, we want to use this function to invert an Integer
+
+{% highlight java %}
+public class AwesomeClass {
+
+    private static Integer invert(Integer value) {
+        return -value;
+    }
+
+    public static Integer invertTheNumber(){
+        Integer toInvert = 5;
+        Function<Integer, Integer> invertFunction = AwesomeClass::invert;
+        return compute(invertFunction, toInvert);
+    }
+    
+}
+{% endhighlight %}
+
+There are two interesting lines here. The first one is:
+
+{% highlight java %}
+return function.apply(value);
+{% endhighlight %}
+
+The apply method of a *Function* object just takes an arguments and returns the method's output. In our example, you could also write
+
+{% highlight java %}
+return invert(value);
+{% endhighlight %}
+
+The second interesting line is this one:
+
+{% highlight java %}
+Function<Integer, Integer> invertFunction = AwesomeClass::invert;
+{% endhighlight %}
+
+What we use here is a so called *method reference*. We make the function *invert()* to a *Function* object by using the *::* operator. It is one of two ways to store a function in an object.
+But this code doesn't make anything easier. You could refactor it like this:
+
+{% highlight java %}
+public class AwesomeClass {
+
+    private static Integer invert(Integer value) {
+        return -value;
+    }
+
+    public static Integer invertTheNumber(){
+        Integer toInvert = 5;
+        return invert(toInvert);
+    }
+    
+}
+{% endhighlight %}
+
+It doesn't need an compute function or any *fP* at all, but it still looks nicer. To make our *fP* code useful, we have to introduce our second way to store a function in an object. And this is by using *anonymous functions*, or so called *Lambdas*.
+
+### How to work with Lambdas
+To work with Lambdas in Java 8, we have to look at a new syntax to handle them properly.
+
+#### Example: Adding Two Integers
+In good old Java 7, you can write a method to add two Integers like this:
+{% highlight java %}
+public Integer add(Integer a, Integer b) {
+    return a + b;
+}
+{% endhighlight %}
+
+And this is a Java 8 Lambda which does exactly the same:
+
+{% highlight java %}
+BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+{% endhighlight %}
+
+That's pretty straightforward, isn't it?
+BiFunction is another Interface in *java.util* to represent a function with two arguments and one return object.
+In the brackets of the Lambda, you define the arguments. You don't have to give them a type, you just have to say how many there are and how each should be called. This is equivalent to
+
+{% highlight java %}
+(Integer a, Integer b)
+{% endhighlight %}
+
+in the Java 7 method.
+Next off, you have the "->" arrow. It is equivalant to the curly brackets and seperates the function's head from its body
+And after the arrow, you can work with the arguments. If you have just one calculation to make, *return* isn't necessary because it returns the result of this line. You can also make the function's body bigger by using currly brackets.
+
+{% highlight java %}
+BiFunction<Integer, Integer, Integer> add = (a,b) -> {
+    Integer result = a + b;
+    return result;
+};
+{% endhighlight %}
+
+But most of the times, you just need one line and therefore no brackets and no *return* keyword.
+
+#### Making the compute Function Nicer
+With that in mind, we can refactor our previous use of the compute function.
+
+{% highlight java %}
+public class AwesomeClass {
+
+    public static Integer invertTheNumber(){
+        Integer toInvert = 5;
+        return compute((a) -> -a, toInvert);
+    }
+
+}
+{% endhighlight %}
+
+Now that's is some beautiful code! We can make our *invert* function to a Lambda. This makes the code nicer than our old *fP* version and the Java 7 example. We don't have to create an extra method to invert the Integer, we just have to use a small lambda which does the work.
+
+## Conclusion
+That's it for today!
+We have made our first big steps towards functional programming in Java 8. First off, we have seen a lot of benefits of *fP*. After that, we have used our first function as an argument in another method by using method references and Lambdas(*anonymous functions*).
+
+In part 2, we will introduce *Optionals* and how we can work with them properly.
+
+Thank's for reading and have a nice day,
+
+Niklas
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//flyingbytes.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+[part0]: https://flyingbytes.github.io/programming/java8/functional/part0/2017/01/16/Java8-Part0.html
+[firstClassFunctions]: https://en.wikipedia.org/wiki/First-class_function
+[java8FunctionInterface]: https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html
