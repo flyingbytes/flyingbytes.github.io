@@ -29,11 +29,11 @@ Integer i = 5;
 Optional<Integer> optinalI = Optional.of(i);
 {% endhighlight %}
 
-Optional doesn't has any public constructor. To create an optional, you have to use `Optional.of(object)` or `Optional.ofNullable(object)`.
+The Optional //TODOClassOderInterface? doesn't have any public constructor. To create an optional, you have to use `Optional.of(object)` or `Optional.ofNullable(object)`.
 You use the first one if the object is never, ever null. The second one is used for nullable objects.
 
 ### How do optionals work? 
-Options have two states. They either hold an object or they hold null. If they hold null; optionals are called *empty*. If they are not empty, you can get the object in the optional by using *Optional.get()*. But be careful, because a *get()* on an empty optional will cause a `NoSuchElementException`. You can check:wq
+Options have two states. They either hold an object or they hold null. If they hold an object, optionals are called *present*, if they hold null, they are called *empty*. If they are not empty, you can get the object in the optional by using *Optional.get()*. But be careful, because a *get()* on an empty optional will cause a `NoSuchElementException`. You can check, if a optional is present by calling the method *optional.isPresent()*
 
 #### Example: Playing with Optionals
 {% highlight java %}
@@ -48,18 +48,60 @@ public void playingWithOptionals() {
 
     System.out.print(optionalS1.get()) // prints "Hello World!"
     System.out.print(optionalNull2.get()) // -> "NoSuchElementExeption" TODO Wirklich?
-    if(optionalNull1.equals(Optional.empty())) {
-        System.out.print("Is empty") // Will be printed
+    if(!optionalNull1.isPresent()) {
+        System.out.print("Is empty"); // Will be printed
     }
 }
 {% endhighlight %}
 
+### Common problems with using Optionals
+1. Working with Optional //bold and null
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first != null) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+This is just the wrong use of an optional! If you get an optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you get an empty optional in this example, there will be a `NoSuchElementException` when you try to get the value.
+
+2. Working with isPresent() and get()
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first.isPresent()) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+//TODO ifpresent Ist eigentlich apply methode
+//TODO Alle Codesnippets in allen Blogbeiträgen in Text von * * zu ` ` ändern.
+As I already said, you should always be 100% sure if a optional is present before you use `optional.get()`. So you won't get a `NoSuchElementException` anymore in the updated new code snipped. But you shouldn't check a optional with the `isPresent() + get()` combo! Because if you do it like that, you could have used *null* in the first place. You would replace `first.isPresent()` with `first != null` and you have the same result. But how can we replace this annoying if-block with optionals?
+
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    first.ifPresent(value -> //...);
+}
+{% endhighlight %}
+
+The `optional.ifPresent()` method is our new best friend to replace the if. It takes a //TODOWirklich?Function, so a Lambda or method reference, and //führtAus this Lambda only, if the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again.
+
+//TODO map(), orElse() was sonst noch für Methoden?
+
+// TODO Irgendwo Optional Talk nutzen (Einleitung als Inspirierung)
 
 ....
 ## When should you use null and when Optional.Empty
-
-
-// TODO Irgendwo Optional Talk nutzen
 ## Conclusion
 That's it for today!
 We have made our first big steps towards functional programming in Java 8. First off, we have seen a lot of benefits of *fP*. After that, we have used our first function as an argument in another method by using method references and Lambdas(*anonymous functions*).
