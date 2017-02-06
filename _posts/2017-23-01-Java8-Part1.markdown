@@ -152,7 +152,7 @@ We have made our first big steps towards functional programming in Java 8. First
 
 In part 2, we will introduce *Optionals* and how we can work with them properly.
 
-Thank's for reading and have a nice day,
+Thanks for reading and have a nice day,
 
 Niklas
 
