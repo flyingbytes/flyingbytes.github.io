@@ -69,7 +69,8 @@ public void workWithFirstStringInDB() {
 {% endhighlight %}
 This is just the wrong use of an optional! If you get an optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you get an empty optional in this example, there will be a `NoSuchElementException` when you try to get the value.
 
-2. Working with isPresent() and get()
+2. Working with isPresent() or get()
+2.1. Doing something when the value is present
 {% highlight java %}
 public void workWithFirstStringInDB() {
     DBConnection dB = new DBConnection();
@@ -96,19 +97,57 @@ public void workWithFirstStringInDB() {
 
 The `optional.ifPresent()` method is our new best friend to replace the if. It takes a //TODOWirklich?Function, so a Lambda or method reference, and //führtAus this Lambda only, if the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again.
 
-//TODO map(), orElse() was sonst noch für Methoden?
+2.2. returning a modified version of the value
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    if(first.isPresent()) {
+       return value.get() * 2;
+    }
 
-// TODO Irgendwo Optional Talk nutzen (Einleitung als Inspirierung)
+    return 0;
+}
+{% endhighlight %}
 
-....
+In this method, we want to double the value of an optional, if it is present, or otherwise, we return 0. The given example works, but it isn't the functional way of seeing this problem.
+To make this a lot nicer, we have two function that are comming to help us. The first one is `Optional.map(Function<T, R> mapper)` and `Optional.orElse(T other)`.
+`map` takes a function, applies it on the value and returns the result of the function, wrapped in an optional again. If the optional is empty, it will return an empty Optional again.
+`orElse` returns the value of the optional it is called on. If the optional is empty, it returns the value you gave the function as a parameter.
+With that in mind, we can make this function a one liner
+
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    return value.map(*2).orElse(0);
+}
+{% endhighlight %}
+
 ## When should you use null and when Optional.Empty
+You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have there right to be used. In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when `there is a clear need to represent "no result"` and where null is likely to cause errors.
+So you shouldn't use Optionals like this:
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return Optional.ofNullable(string).orElse("default");
+}
+{% endhighlight %}
+
+Because a null check is much easier to read.
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return (string != null) ? string : "default";
+}
+{% endhighlight %}
+
+Most of the times, you should use optionals just as a return value from a function. It's not a good idea to new ones to create a cool method chain (like in the example above). Most of the times, null is enough.
+
 ## Conclusion
 That's it for today!
+We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some code smell
 We have made our first big steps towards functional programming in Java 8. First off, we have seen a lot of benefits of *fP*. After that, we have used our first function as an argument in another method by using method references and Lambdas(*anonymous functions*).
 
 In part 2, we will introduce *Optionals* and how we can work with them properly.
 
-Thank's for reading and have a nice day,
+Thank's for reading and have a nice day, // fix thank's in anderen Blog einträgen
 
 Niklas
 
