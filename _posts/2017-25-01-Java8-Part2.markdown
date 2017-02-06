@@ -20,7 +20,7 @@ if(argument == null) {
 These lines suck! This is a boilerplate that bloats up your code and can be easily forgotten. So how can we fix that?
 
 ## Introducing Optionals
-In Java 8, [java.util.Optional\<T\>][optionalJavaDoc] was introduce to handle objects which might not exist better. 
+In Java 8, [java.util.Optional\<T\>][optionalJavaDoc] was introduced to handle objects which might not exist better. 
 It is a container object that can hold another object.
 The Generic *T* is the type of the object you want to contain.
 
@@ -29,13 +29,13 @@ Integer i = 5;
 Optional<Integer> optinalI = Optional.of(i);
 {% endhighlight %}
 
-The Optional //TODOClassOderInterface? doesn't have any public constructor. To create an optional, you have to use `Optional.of(object)` or `Optional.ofNullable(object)`.
+The Optional class doesn't have any public constructor. To create an optional, you have to use `Optional.of(object)` or `Optional.ofNullable(object)`.
 You use the first one if the object is never, ever null. The second one is used for nullable objects.
 
 ### How do optionals work? 
-Options have two states. They either hold an object or they hold null. If they hold an object, optionals are called *present*, if they hold null, they are called *empty*. If they are not empty, you can get the object in the optional by using `Optional.get()`. But be careful, because a *get()* on an empty optional will cause a `NoSuchElementException`. You can check if a optional is present by calling the method `optional.isPresent()`
+Options have two states. They either hold an object or they hold null. If they hold an object, optionals are called *present*, if they hold null, they are called *empty*. If they are not empty, you can get the object in the optional by using `Optional.get()`. But be careful, because a *get()* on an empty optional will cause a `NoSuchElementException`. You can check if a optional is present by calling the method `Optional.isPresent()`
 
-#### Example: Playing with Optionals //TODO Schmeißt keine Fehler?
+#### Example: Playing with Optionals
 {% highlight java %}
 public void playingWithOptionals() {
     String s = "Hello World!";
@@ -55,7 +55,7 @@ public void playingWithOptionals() {
 {% endhighlight %}
 
 ## Common problems when using Optionals
-### 1. Working with Optional /bold~and~ null
+### 1. Working with Optional **and~ null
 {% highlight java %}
 public void workWithFirstStringInDB() {
     DBConnection dB = new DBConnection();
@@ -70,7 +70,7 @@ public void workWithFirstStringInDB() {
 
 This is just the wrong use of an Optional! If you get an Optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you got an empty Optional from the DB, there would also be a `NoSuchElementException` in this example.
 
-### 2. Working with isPresent() or get()
+### 2. Using isPresent() and get()
 
 #### 2.1. Doing something when the value is present
 
@@ -86,7 +86,6 @@ public void workWithFirstStringInDB() {
 }
 {% endhighlight %}
 
-//TODO Alle Codesnippets in allen Blogbeiträgen in Text von * * zu ` ` ändern.
 As I already said, you should always be 100% sure if an Optional is present before you use `Optional.get()`. You wouldn't get a `NoSuchElementException` anymore in the updated function. But you shouldn't check a optional with the `isPresent() + get()` combo! Because if you do it like that, you could have used *null* in the first place. You would replace `first.isPresent()` with `first != null` and you have the same result. But how can we replace this annoying if-block with the help of Optionals?
 
 {% highlight java %}
@@ -127,7 +126,8 @@ public Integer doubleValueOrZero(Optional<Integer> value) {
 
 ## When Should you use Nullable Objects and when Optionals
 You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have their right to be used. 
-In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *there is a clear need to represent "no result"* or where null is likely to cause errors.
+In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *"there is a clear need to represent 'no result' or where null is likely to cause errors."*.
+
 So you shouldn't use Optionals like this:
 
 {% highlight java %}
@@ -144,13 +144,13 @@ public String defaultIfOptional(String string) {
 }
 {% endhighlight %}
 
-Most of the times, you should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
+You should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
 
 ## Conclusion
 That's it for today!
 We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
 
-In the next part, we will use *Streams* as a new way to handle a Collection of Objects, like Lists, Sets and Iterables//TODO Heißt das DIng so?
+In the next part, we will use *Streams* as a new way to handle a Collection of Objects, like Iterables and Collections.
 
 Thanks for reading and have a nice day,
 
