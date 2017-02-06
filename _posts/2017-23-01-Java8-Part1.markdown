@@ -72,7 +72,7 @@ The second interesting line is this one:
 Function<Integer, Integer> invertFunction = AwesomeClass::invert;
 {% endhighlight %}
 
-What we use here is a so called *method reference*. We make the function *invert()* to a *Function* object by using the *::* operator. It is one of two ways to store a function in an object.
+What we use here is a so called *method reference*. We make the function `invert()` to a *Function* object by using the *::* operator. It is one of two ways to store a function in an object.
 But this code doesn't make anything easier. You could refactor it like this:
 
 {% highlight java %}
@@ -152,7 +152,7 @@ We have made our first big steps towards functional programming in Java 8. First
 
 In part 2, we will introduce *Optionals* and how we can work with them properly.
 
-Thank's for reading and have a nice day,
+Thanks for reading and have a nice day,
 
 Niklas
 
