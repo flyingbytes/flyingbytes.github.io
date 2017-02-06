@@ -55,7 +55,8 @@ public void playingWithOptionals() {
 {% endhighlight %}
 
 ## Common problems when using Optionals
-### 1. Working with Optional **and~ null
+
+### 1. Working with Optional **and** null
 {% highlight java %}
 public void workWithFirstStringInDB() {
     DBConnection dB = new DBConnection();
