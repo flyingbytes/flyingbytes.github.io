@@ -35,14 +35,14 @@ public class Node {
     }
 
     public List<Node> getChildren() {
-        return Arrays.asList(left, right)
-                .stream()
-                .filter(Predicate.isEqual(null).negate())
+        return Stream.of(left, right)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
 }
 {% endhighlight %}
+(Thanks to Alexey Polyakov for pointing out that I can simplify `getChildren()`)
 
 This is the node class. Every note has zero, one or two childs. If a child should not exist, you can set it to null in the construcutor.
 The label helps with the identification later on.
@@ -165,6 +165,8 @@ Would you like to read more about functional programming in Java? Should I also 
 Thank you for reading and have a nice day,
 
 Niklas
+
+
 
 <div id="disqus_thread"></div>
 <script>
