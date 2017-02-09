@@ -144,7 +144,20 @@ public class AwesomeClass {
 }
 {% endhighlight %}
 
-Now that's is some beautiful code! We can make our *invert* function to a Lambda. This makes the code nicer than our old *fP* version and the Java 7 example. We don't have to create an extra method to invert the Integer, we just have to use a small lambda which does the work.
+Now that's some beautiful code! We can make our *invert* function to a Lambda. This makes the code nicer than our old *fP* version and the Java 7 example. We don't have to create an extra method to invert the Integer, we just have to use a small lambda which does the work.
+
+You might ask yourself now why we don't just `return -value`. And in this case, it would be better. However, if we want to change the function at runtime, our version can be used for this. Thanks to kdm06 for pointing this out.
+
+{% highlight java %}
+public class AwesomeClass {
+
+    public static Integer changeTheNumber(Function<Integer, Integer> func){
+        Integer toChange = 5;
+        return compute(func, toChange);
+    }
+
+}
+{% endhighlight %}
 
 ## Conclusion
 That's it for today!
