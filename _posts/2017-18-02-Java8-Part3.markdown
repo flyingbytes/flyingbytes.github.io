@@ -1,0 +1,201 @@
+---
+layout: post
+title:  "An Introduction to Functional Programming in Java 8: Part 3 - Streams"
+date:   2017-02-04 13:00:00 +0100
+categories: programming java8 functional part3
+---
+
+Hello everybody,
+
+In the [last part][part2], we've learned about the Optional type and how to use it correctly. Today, we will learn about `Streams`, which you use as an functional alternative of working with Collections, Iterables and so on. 
+Some method were already seen when we used Optionals. I won't explain them all in detail again, so be sure to check out [the part about Optionals][part2]
+
+TODO reduce, joining, collector,...
+TODO in part 0, 1, 2, jeweils referencen auf diesen part.
+
+## Where do we use Streams?
+
+You might ask what's wrong with the current way to store multiple objects? Why shouldn't you use Lists, Sets and so on anymore?
+
+I want to point out: Nothing is wrong with them. But when you want to work functional (what you hopefully want after the last parts of this blog), you should consider using them. 
+The standard workflow is to convert to transform your data structure into a Stream. Then you want to work on them in a functional manner and in the end, you transform them back into the data structure of your choice.
+
+And that's the reason we will learn to transform the most common data structures into streams.
+
+## How to Convert Data Structures into Streams
+
+TODO Convert Array
+TODO IntStream
+### Converting Collections (Lists, Sets, ...)
+
+Luckily, Oracle has thought through the implementation of Streams in Java 8. Every Class that implements [java.util.Collection<T>][javaDocCollection] has a new method called `stream()` which converts the collection into a Stream. It's as easy as it get's.
+
+{% highlight java %}
+public void convertStuff() {
+    Set<String> set = new HashSet<>();
+    List<Integer> list = new LinkedList<>();
+
+    Stream<String> setStream = set.stream();
+    Stream<Integer> listStream = list.stream();
+}
+{% endhighlight %}
+
+### Converting Iterables
+The conversion of an Iterables into a Stream is a bit trickier. However, Oracle also introduced the `StreamSupport` class to help with them.
+
+{% highlight java %}
+public void convertStuff() {
+    Iterables<String> iter = new Iterable<>();
+
+    Stream<Integer> iterStream = StreamSupport.stream(iterable.spliterator(), false);
+}
+{% endhighlight %}
+...
+
+However, normally you won't store a Stream as an object. You just work with them and convert them back into your desired data structure.
+#### Example: Playing with Optionals
+{% highlight java %}
+public void playingWithOptionals() {
+    String s = "Hello World!";
+    String nullString = null;
+
+    Optional<String> optionalS1 = Optional.of(s); // Will work
+    Optional<String> optionalS2 = Optional.ofNullable(s); // Will work too
+    Optional<String> optionalNull1 = Optional.of(nullString); // -> NullPointerException
+    Optional<String> optionalNull2 = Optional.ofNullable(nullString); // Will work
+
+    System.out.println(optionalS1.get()); // prints "Hello World!"
+    System.out.println(optionalNull2.get()); // -> NoSuchElementException
+    if(!optionalNull2.isPresent()) {
+        System.out.println("Is empty"); // Will be printed
+    }
+}
+{% endhighlight %}
+
+## Common problems when using Optionals
+
+### 1. Working with Optional **and** null
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first != null) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+
+This is just the wrong use of an Optional! If you get an Optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you got an empty Optional from the DB, there would also be a `NoSuchElementException` in this example.
+
+### 2. Using isPresent() and get()
+
+#### 2.1. Doing something when the value is present
+
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first.isPresent()) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+
+As I already said, you should always be 100% sure if an Optional is present before you use `Optional.get()`. You wouldn't get a `NoSuchElementException` anymore in the updated function. But you shouldn't check a optional with the `isPresent() + get()` combo! Because if you do it like that, you could have used *null* in the first place. You would replace `first.isPresent()` with `first != null` and you have the same result. But how can we replace this annoying if-block with the help of Optionals?
+
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    first.ifPresent(value -> /*...*/);
+}
+{% endhighlight %}
+
+The `Optional.ifPresent()` method is our new best friend to replace the if. It takes a Function, so a Lambda or method reference, and applies it only when the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again.
+
+#### 2.2. Returning a Modified Version of the Value
+
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    if(value.isPresent()) {
+       return value.get() * 2;
+    }
+
+    return 0;
+}
+{% endhighlight %}
+
+In this method, we want to double the value of an optional, if it is present. Otherwise, we return zero. The given example works, but it isn't the functional way of solving this problem.
+To make this a lot nicer, we have two function that are coming to help us. 
+The first one's `Optional.map(Function<T, R> mapper)` and the second one's `Optional.orElse(T other)`.
+`map` takes a function, applies it on the value and returns the result of the function, wrapped in an Optional again. If the Optional is empty, it will return an empty Optional again.
+`orElse` returns the value of the Optional it is called on. If there is no value, it returns the value you gave `orElse(object)` as a parameter.
+With that in mind, we can make this function a one liner.
+
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    return value.map(i -> i * 2).orElse(0);
+}
+{% endhighlight %}
+
+## When Should you use Nullable Objects and when Optionals
+You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have their right to be used. 
+In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *"there is a clear need to represent 'no result' or where null is likely to cause errors."*.
+
+So you shouldn't use Optionals like this:
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return Optional.ofNullable(string).orElse("default");
+}
+{% endhighlight %}
+
+Because a null check is much easier to read.
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return (string != null) ? string : "default";
+}
+{% endhighlight %}
+
+You should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
+
+## Conclusion
+That's it for today!
+We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
+
+In the next part, we will use *Streams* as a new way to handle a Collection of Objects, like Iterables and Collections.
+
+Thanks for reading and have a nice day,
+
+Niklas
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//flyingbytes.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+[part2]: https://flyingbytes.github.io/programming/java8/functional/part2/2017/02/04/Java8-Part2.html
+[javaDocCollection]: https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html
