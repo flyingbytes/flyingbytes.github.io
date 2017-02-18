@@ -53,6 +53,56 @@ public void convertStuff() {
 ...
 
 However, normally you won't store a Stream as an object. You just work with them and convert them back into your desired data structure.
+
+## Working with Streams
+As I already said, Streams are the way to work with data structures functional. And now we will learn about the most common methods to use.
+
+### Methods we already know
+TODO Vergleiche mit OOP programming
+You can use some methodes we already heard about when we learned about Optionals also with Streams.
+#### map and flatMap
+These work pretty straight forward. Instead of manipulating one item, which might be in the Optional, we manipulate all items in a stream
+
+{% highlight java %}
+public void showMap() {
+    List<Integer> numbers = Arrays.of(1, 2, 3)
+
+    numbers.stream()
+        .map(num -> num * num)
+        .forEach(System.out::println) // -> 1 4 9
+}
+{% endhighlight %}
+
+TODO Flatmap
+
+{% highlight java %}
+public void showFlatMap() {
+    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
+
+    numbers.stream()
+        .flatMap(num -> divide(1, num))
+        .filter(Optional::isPresent)
+        .map(Optional::get) // TODO Sag dazu, dass man diese 2 Zeilen in Java 9 durch .flatMap(Optional::stream) ersetzen kann + Verweis talk 
+        .forEach(System.out::println) // -> 1 4 9
+}
+
+public Optional<Integer> divide(Integer first, Integer second) {
+    if(second == 0) {
+       return Optional.empty();
+    }
+
+    return Optional.of(first / second);
+}
+{% endhighlight %}
+
+And in these examples, we already TODOwitrklichsaw other Stream method, which I will describe now.
+
+### Common Stream methods
+#### filter
+Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out. So this 'test' function has the type `Function<T, Boolean>`, where T is the type of the objects in the list. In the [JavaDoc][streamJavaDoc], you will see that the test function really is of the type `Predicate<T>`. But this is just a short form for every function that takes one parameter and
+
+TODO Schreiben, dass stream() ursprünglcihen Datensatz **Nicht** verändert.
+
 #### Example: Playing with Optionals
 {% highlight java %}
 public void playingWithOptionals() {
@@ -166,6 +216,8 @@ public String defaultIfOptional(String string) {
 You should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
 
 ## Conclusion
+TODO Falls Methoden für Streams fehlen, lasst es mich gerne wissen
+TODO Was in nächsten part? RxJava?
 That's it for today!
 We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
 
@@ -199,3 +251,5 @@ s.setAttribute('data-timestamp', +new Date());
 
 [part2]: https://flyingbytes.github.io/programming/java8/functional/part2/2017/02/04/Java8-Part2.html
 [javaDocCollection]: https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html
+[streamJavaDoc]: https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+
