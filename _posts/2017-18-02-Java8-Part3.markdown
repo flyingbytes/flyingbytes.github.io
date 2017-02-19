@@ -41,6 +41,7 @@ public void convertStuff() {
 {% endhighlight %}
 
 ### Converting Iterables
+TODO Flatmap optionals part 2, auch in DZone ändern
 The conversion of an Iterables into a Stream is a bit trickier. However, Oracle also introduced the `StreamSupport` class to help with them.
 
 {% highlight java %}
