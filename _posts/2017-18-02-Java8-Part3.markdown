@@ -56,6 +56,7 @@ However, normally you won't store a Stream as an object. You just work with them
 
 ## Working with Streams
 As I already said, Streams are the way to work with data structures functional. And now we will learn about the most common methods to use.
+In the next TODOAbschnitten, I will use T as the type of the objects in the Stream.
 
 ### Methods we already know
 TODO Vergleiche mit OOP programming
@@ -98,11 +99,112 @@ public Optional<Integer> divide(Integer first, Integer second) {
 And in these examples, we already TODOwitrklichsaw other Stream method, which I will describe now.
 
 ### Common Stream methods
+TODO ist map mit side effects
+TODO PArallelstreams
+
+#### forEach
+forEach is like map, but you use it when you have side effects. As already shown, you use it to e.g. print all object in a stream.
+
+{% highlight java %}
+public void showFilter() {
+    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
+
+    numbers.stream()
+        .forEach(System.out::println) // -> 0, 1, 2, 3
+}
+{% endhighlight %}
+
 #### filter
-Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out. So this 'test' function has the type `Function<T, Boolean>`, where T is the type of the objects in the list. In the [JavaDoc][streamJavaDoc], you will see that the test function really is of the type `Predicate<T>`. But this is just a short form for every function that takes one parameter and
+Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out. So this 'test' function has the type `Function<T, Boolean>`. In the [JavaDoc][streamJavaDoc], you will see that the test function really is of the type `Predicate<T>`. But this is just a short form for every function that takes one parameter and returns a boolean.
+
+
+{% highlight java %}
+public void showFilter() {
+    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
+
+    numbers.stream()
+        .filter(num -> num < 2)
+        .forEach(System.out::println) // -> 0, 1
+}
+{% endhighlight %}
 
 TODO Schreiben, dass stream() ursprünglcihen Datensatz **Nicht** verändert.
 
+#### collect
+As I already said, you want to transform your stream back into another data structure. And that is what you use Collect for. And most of the times, you convert it into a List or a Set.
+
+{% highlight java %}
+public void showCollect() {
+    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
+
+    List<Integer> filtered = numbers.stream()
+        .filter(num -> num < 2)
+        .collect(Collectors.toList())
+}
+{% endhighlight %}
+
+But you can use collect for much more. For example, you can join Strings. Therefore, you don't have the nasty delimeter in the end of the string.
+
+{% highlight java %}
+public void showReduceConcat() {
+    List<Stream> words = Arrays.of("Who", "are", "you?")
+
+    Stirng sentence = Stream.of("Who", "are", "you?")
+        .collect(Collectors.joining(" "))
+
+    System.out.println(sentence) --> Who are you ?
+
+}
+{% endhighlight %}
+
+### Shortcuts
+
+These are methods which you could emulate by using map, filter and collect, but these shortcut method are meant to be used because they declutter your code.
+
+#### reduce
+Reduce is a very cool function.
+It takes a start parameter of type T and a Function of type `BiFunction<T, T, T>`. If you have a BiFunction, where all types are the same, `BinaryOperator<T>` is a shortcut for that. 
+It basically stores all objects in the stream to one object. You can concat all Strings into one String, sum all Numbers and so on. There, your star parametrs would be the empty String or zero. This function helps a lot to make your code more readable if you know how to use it.
+
+TODO Mehr dazu schreiben. Von welcher Seite wird reduziert, wozu start parameter
+TODO Nicht Strings concaten, mach ich oben mit collect schon besser.
+
+{% highlight java %}
+public void showReduceConcat() {
+    List<Stream> words = Arrays.of("Who", "are", "you?")
+
+    Stirng sentence = numbers.stream()
+        .reduce("", (acc, s) -> acc.concat(" ").concat(s))
+
+    System.out.println(sentence) --> "Who are you ? "
+
+}
+
+public void showReduceSum() {
+
+    Integer sum = Stream.of(0, 1, 2, 3) //TODO Das überall nutzen und einführen
+        .reduce(0, Integer::sum)
+
+    System.out.println(sum) --> 6
+}
+{% endhighlight %}
+
+But as you can see, reduce produces a nasty space in the end of the String in this example. But good for us, there is also a method to help us with this
+
+#### sort
+You can also use Streams to sort your data structure. The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int. And this int, like in the `compareTo()` function, shows us, if the first object is "smaller" than the first one (int < 0), is as big as the second (int == 0), or if it's bigger than the second one (int > 0). 
+
+The sorted function of the Stream will interpret the int and will sort the elements by
+
+public void showReduceSum() {
+
+    Stream.of(0, 2, 1, 3) //TODO Das überall nutzen und einführen
+        .reduce(0, Integer::sum)
+
+    System.out.println(sum) --> 6
+}
+
+{% endhighlight %}
 #### Example: Playing with Optionals
 {% highlight java %}
 public void playingWithOptionals() {
