@@ -7,7 +7,7 @@ categories: programming java8 functional part3
 
 Hello everybody,
 
-In the [last part][part2], we've learned about the Optional type and how to use it correctly. Today, we will learn about `Streams`, which you use as an functional alternative of working with Collections, Iterables and so on. 
+In the [last part][part2], we've learned about the Optional type and how to use it correctly. Today, we will learn about `Streams`, which you use as an functional alternative of working with Collections, Iterables and so on.
 Some method were already seen when we used Optionals. I won't explain them all in detail again, so be sure to check out [the part about Optionals][part2]
 
 TODO reduce, joining, collector,...
@@ -17,7 +17,7 @@ TODO in part 0, 1, 2, jeweils referencen auf diesen part.
 
 You might ask what's wrong with the current way to store multiple objects? Why shouldn't you use Lists, Sets and so on anymore?
 
-I want to point out: Nothing is wrong with them. But when you want to work functional (what you hopefully want after the last parts of this blog), you should consider using them. 
+I want to point out: Nothing is wrong with them. But when you want to work functional (what you hopefully want after the last parts of this blog), you should consider using them.
 The standard workflow is to convert to transform your data structure into a Stream. Then you want to work on them in a functional manner and in the end, you transform them back into the data structure of your choice.
 
 And that's the reason we will learn to transform the most common data structures into streams.
@@ -84,7 +84,7 @@ public void showFlatMap() {
     numbers.stream()
         .flatMap(num -> divide(1, num))
         .filter(Optional::isPresent)
-        .map(Optional::get) // TODO Sag dazu, dass man diese 2 Zeilen in Java 9 durch .flatMap(Optional::stream) ersetzen kann + Verweis talk 
+        .map(Optional::get) // TODO Sag dazu, dass man diese 2 Zeilen in Java 9 durch .flatMap(Optional::stream) ersetzen kann + Verweis talk
         .forEach(System.out::println) // -> 1 4 9
 }
 
@@ -164,7 +164,7 @@ These are methods which you could emulate by using map, filter and collect, but 
 
 #### reduce
 Reduce is a very cool function.
-It takes a start parameter of type T and a Function of type `BiFunction<T, T, T>`. If you have a BiFunction, where all types are the same, `BinaryOperator<T>` is a shortcut for that. 
+It takes a start parameter of type T and a Function of type `BiFunction<T, T, T>`. If you have a BiFunction, where all types are the same, `BinaryOperator<T>` is a shortcut for that.
 It basically stores all objects in the stream to one object. You can concat all Strings into one String, sum all Numbers and so on. There, your star parametrs would be the empty String or zero. This function helps a lot to make your code more readable if you know how to use it.
 
 TODO Mehr dazu schreiben. Von welcher Seite wird reduziert, wozu start parameter
@@ -192,139 +192,153 @@ public void showReduceSum() {
 
 But as you can see, reduce produces a nasty space in the end of the String in this example. But good for us, there is also a method to help us with this
 
-#### sort
-You can also use Streams to sort your data structure. The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int. And this int, like in the `compareTo()` function, shows us, if the first object is "smaller" than the first one (int < 0), is as big as the second (int == 0), or if it's bigger than the second one (int > 0). 
+#### sorted
+TODO Example Personen(Filter alle kleine vorname l, sort by nachname, dann vornahme), 11 mapToInt Example
+TODO Categorie Streams vor Tests, anymatch
+You can also use Streams to sort your data structure. The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int. And this int, like in the `compareTo()` function, shows us, if the first object is "smaller" than the first one (int < 0), is as big as the second (int == 0), or if it's bigger than the second one (int > 0).
 
-The sorted function of the Stream will interpret the int and will sort the elements by
+The sorted function of the Stream will interpret these ints and will sort the elements with the help of it.
 
+{% highlight java %}
 public void showReduceSum() {
 
-    Stream.of(0, 2, 1, 3) //TODO Das überall nutzen und einführen
-        .reduce(0, Integer::sum)
+    Stream.of(3, 2, 4, 0) //TODO Das überall nutzen und einführen
+        .sorted((c1, c2) -> c1 - c2)
+        .forEach(System.out::println) // -> 0,2,3,4
 
-    System.out.println(sum) --> 6
-}
-
-{% endhighlight %}
-#### Example: Playing with Optionals
-{% highlight java %}
-public void playingWithOptionals() {
-    String s = "Hello World!";
-    String nullString = null;
-
-    Optional<String> optionalS1 = Optional.of(s); // Will work
-    Optional<String> optionalS2 = Optional.ofNullable(s); // Will work too
-    Optional<String> optionalNull1 = Optional.of(nullString); // -> NullPointerException
-    Optional<String> optionalNull2 = Optional.ofNullable(nullString); // Will work
-
-    System.out.println(optionalS1.get()); // prints "Hello World!"
-    System.out.println(optionalNull2.get()); // -> NoSuchElementException
-    if(!optionalNull2.isPresent()) {
-        System.out.println("Is empty"); // Will be printed
-    }
 }
 {% endhighlight %}
 
-## Common problems when using Optionals
+#### Other Kinds of Streams
+There are also special types of Streams, which only contains numbers. With them, you also have a new TODOset? of functions. Here I will introduce IntStream and Sum, but there are also LongStream, DoubleStream,... . You can read more about them in the [JavaDoc][streamJavaDoc].
 
-### 1. Working with Optional **and** null
+To convert a normal Stream into an IntStream, you have to use `mapToInt`. It does exactly the same as the normal map, but you get a IntStream back. Of course, you have to give the mapToInt function another function, which will return an int.
+
+Here, I will show you how to sum numbers without reduce, but with an IntStream
+
+TODO Predicate.negate, Objects::nonNull
+
 {% highlight java %}
-public void workWithFirstStringInDB() {
-    DBConnection dB = new DBConnection();
-    Optional<String> first = dB.getFirstString();
+public void sumWithIntStream() {
+    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
 
-    if(first != null) {
-        String value = first.get(); 
-        //... 
-    }
+    Integer sum = numbers.stream()
+        .mapToInt(id) // Takes the argument and returns it back
+        .sum()
 }
 {% endhighlight %}
 
-This is just the wrong use of an Optional! If you get an Optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you got an empty Optional from the DB, there would also be a `NoSuchElementException` in this example.
+### Use Streams for Tests
+TODO Sag, dass forEach Stream nicht zurück gibt. Deshalb ist es, wenn es denn gebraucht wird, immer als letzte Methode genutzt. Man sollte damit aber vorsichtig sein, da es nunmal Sde Effects hat und man sollte nochmal überlegen, ob es nicht auch anders geht!
+Tests can also be used to test your methods. I will use the method `anyMatch` here, but `count`, `max` and so on. If something goes wrong, use `peek` to log data. It's like forEach, but also returns the stream. As always, look into the [JavaDoc][streamJavaDoc] to find other cool methods.
 
-### 2. Using isPresent() and get()
+`anyMatch` is a little bit like filter, but it tells you if anything passes the filter. You can use this in `assertTrue()` tests, where you just want to look if one (or many) particualar objects have a specific property.
+In the next example, I will test if a specific name was stored in the DB.
 
-#### 2.1. Doing something when the value is present
 
 {% highlight java %}
-public void workWithFirstStringInDB() {
-    DBConnection dB = new DBConnection();
-    Optional<String> first = dB.getFirstString();
 
-    if(first.isPresent()) {
-        String value = first.get(); 
-        //... 
-    }
+@Test
+public void testIfNameIsStored() {
+    String testName = "Albert Einstein";
+
+    Datebase names = new Datebase();
+    names.drop();
+
+    db.put(testName);
+    assertTrue(db.getData()
+        .stream()
+        .anyMatch(name -> name.equals(testName)));
 }
 {% endhighlight %}
 
-As I already said, you should always be 100% sure if an Optional is present before you use `Optional.get()`. You wouldn't get a `NoSuchElementException` anymore in the updated function. But you shouldn't check a optional with the `isPresent() + get()` combo! Because if you do it like that, you could have used *null* in the first place. You would replace `first.isPresent()` with `first != null` and you have the same result. But how can we replace this annoying if-block with the help of Optionals?
+### Shortcuts of Shortcuts
+And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which compines `forEach` and `sorted`. If you are intrested in other helpful methods, watch into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If it looks ugly, there's a better method to use 😉.
+
+### A Bigger Example
+In this example, we want to send a message to every user whose birthday's today.
+
+#### The User Class
+A user is defined by their username and it's birthday. The birthdays will be in the format "day.month.year", but we won't do much checking for this in today's example.
 
 {% highlight java %}
-public void workWithFirstStringInDB() {
-    DBConnection dB = new DBConnection();
-    Optional<String> first = dB.getFirstString();
+public class User {
 
-    first.ifPresent(value -> /*...*/);
-}
-{% endhighlight %}
+    private String username;
+    private String birthday.
 
-The `Optional.ifPresent()` method is our new best friend to replace the if. It takes a Function, so a Lambda or method reference, and applies it only when the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again.
-
-#### 2.2. Returning a Modified Version of the Value
-
-{% highlight java %}
-public Integer doubleValueOrZero(Optional<Integer> value) {
-    if(value.isPresent()) {
-       return value.get() * 2;
+    public User(String username, String birthday) {
+        this.username = username;
+        this.birthday = birthday;
     }
 
-    return 0;
+    public String getUsername() {
+        return username;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
 }
 {% endhighlight %}
 
-In this method, we want to double the value of an optional, if it is present. Otherwise, we return zero. The given example works, but it isn't the functional way of solving this problem.
-To make this a lot nicer, we have two function that are coming to help us. 
-The first one's `Optional.map(Function<T, R> mapper)` and the second one's `Optional.orElse(T other)`.
-`map` takes a function, applies it on the value and returns the result of the function, wrapped in an Optional again. If the Optional is empty, it will return an empty Optional again.
-`orElse` returns the value of the Optional it is called on. If there is no value, it returns the value you gave `orElse(object)` as a parameter.
-With that in mind, we can make this function a one liner.
+To store all users, we will use a List here. In a real program, you might want to switch to a DB.
 
 {% highlight java %}
-public Integer doubleValueOrZero(Optional<Integer> value) {
-    return value.map(i -> i * 2).orElse(0);
+public class MainClass {
+
+    public static void main() {
+        List<User> users = new LinkedList<>();
+
+        User birthdayChild = new User("peter", "20.02.1990");
+        User otherUser = new User("kid", "23.02.2008");
+        User birthdayChild2 = new User("bruce", "20.02.1980");
+
+        users.add(todayBirthday, otherUser);
+
+        greetAllBirthdayChilds(users); // Will be implemented in the next TODOAbschnitt.
+    }
+
+    private static void greetAllBirthdayChilds(List<Person> users) {
+        // TODO In next TODOparagraph
+    }
+
 }
 {% endhighlight %}
 
-## When Should you use Nullable Objects and when Optionals
-You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have their right to be used. 
-In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *"there is a clear need to represent 'no result' or where null is likely to cause errors."*.
+#### The greet TODOoderGreeting?
 
-So you shouldn't use Optionals like this:
+Now, we want to greet the birthday childs.
+So first off, we have to filter out all Users whose birthday is today. After that, we have to message them. So let's do this.
+
+I won't implement `sendMessage(String message, User receiver)` here, but it just sends a message to a given user.
 
 {% highlight java %}
-public String defaultIfOptional(String string) {
-    return Optional.ofNullable(string).orElse("default");
+public static void greetAllBirthdayChilds(List<Person> users) {
+    String today = "20.02"; //Just to make the example easier. In production, you would use LocalDateTime or so.
+    users.stream()
+        .filter(user -> user.getBirthday().startsWith(today))
+        .forEach(sendMessage("Concratulations TODOto your birthday, ".concat(user.getName()).concat("!")));
+}
+
+private static void sendMessage(String message, User receiver) {
+    //...
 }
 {% endhighlight %}
 
-Because a null check is much easier to read.
+And now we can send greetings to the users. How nice and easy was that?!
 
-{% highlight java %}
-public String defaultIfOptional(String string) {
-    return (string != null) ? string : "default";
-}
-{% endhighlight %}
-
-You should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
-
+TODO Baue Splitter im nächsten Part
 ## Conclusion
 TODO Falls Methoden für Streams fehlen, lasst es mich gerne wissen
 TODO Was in nächsten part? RxJava?
 That's it for today!
-We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
+We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data strcuture. I have introduced the most common methods and when you should use them. In the end, we tested our knowledge with a bigger example, where we greeted all birthday childs.
 
-In the next part, we will use *Streams* as a new way to handle a Collection of Objects, like Iterables and Collections.
+In the next part of this series, we will have a big example where we are going to use Streams. But I won't tell you the example yet, so be surprised.
+
+Are there any Stream methods that I should've also talked about? Please let me know this in the comments
 
 Thanks for reading and have a nice day,
 
@@ -355,4 +369,3 @@ s.setAttribute('data-timestamp', +new Date());
 [part2]: https://flyingbytes.github.io/programming/java8/functional/part2/2017/02/04/Java8-Part2.html
 [javaDocCollection]: https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html
 [streamJavaDoc]: https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
-
