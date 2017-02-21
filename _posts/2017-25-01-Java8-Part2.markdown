@@ -125,29 +125,30 @@ public Integer doubleValueOrZero(Optional<Integer> value) {
 }
 {% endhighlight %}
 
-## Using flatMap to Optionals
+## Using flatMap
 There is another really cool method that you can use with Optionals. It's called flatMap.
-When you use map with a method that returns an Optionals, you basically get a Optional<Optional<T>>. But you don't want to rewrite the method nor do you want to call get() or orElse two times. That is the reason there is flatMap. It flattens the Optional<Optional<T>> to a Optional<T>. Or you can use it to concat multiple Lists into one.
-In our example, we want to divide 2 Integers. But if the Number is 0, we get back `Optional.empty()`. So if we divide by 0, we have a Optional<Optional<Double>>
+When you use map on a method that returns an Optional, you basically get a Optional<Optional<T>>. But you don't want to rewrite the method nor do you want to call get() or orElse() two times to get the value.
+This is the reason there is flatMap. It flattens the Optional<Optional<T>> to Optional<T>.
+In our example, we want to divide 2 Integers. But if the Number is 0, we get back `Optional.empty()`. So if we use map and divide, we have a object of type Optional<Optional<Double>>. That's the reason we use flatMap here.
 
 {% highlight java %}
 public void showFlatMap() {
-    Optional<Integer> one = Optional.of(1);
-    Optional<Integer> zero = Optional.of(0)
-    one.flatMap(num -> divide(1, num)).orElse(0) // 1
-    zero.flatMap(num -> divide(1, num)).orElse(0) // 0
+    Optional<Double> two = Optional.of(2.0);
+    Optional<Double> zero = Optional.of(1.0)
+    two.flatMap(num -> divide(1.0, num)).orElse(0) // 0.5
+    zero.flatMap(num -> divide(1.0, num)).orElse(0) // 0
 }
 
-public Optional<Double> divide(Integer first, Integer second) {
+public Optional<Double> divide(Double first, Double second) {
     if(second == 0) {
        return Optional.empty();
     }
 
-    return Optional.of((Double)first / second); // TODO reicht das mit double?
+    return Optional.of(first / second);
 }
 {% endhighlight %}
 
-## When Should you use Nullable Objects and when Optionals
+## When Should you use Nullable Objects and when Optionals?
 You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have their right to be used. 
 In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *"there is a clear need to represent 'no result' or where null is likely to cause errors."*.
 
