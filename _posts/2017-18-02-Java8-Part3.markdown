@@ -94,7 +94,7 @@ And in these examples, we already saw another Stream method which I will describ
 ### Common Stream methods
 
 #### forEach
-The `forEach` function is like map, but you use it when you have side effects. As already shown, you use it to e.g. print all object in a stream. forEach is one of the few Stream methods that doesn't give back the Stream, so you use it as the last method of a Stream and only once.
+The `forEach` method is like the `ifPresent` method from Optionals, so you use it when you have side effects. As already shown, you use it to e.g. print all object in a stream. forEach is one of the few Stream methods that doesn't return the Stream, so you use it as the last method of a Stream and only once.
 You should be careful when using forEach, because it causes side effects which we don't won't to have. So think twice if you could replace it with another method without side effects.
 
 {% highlight java %}
