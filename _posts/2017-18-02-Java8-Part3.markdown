@@ -7,7 +7,7 @@ categories: programming java8 functional part3
 
 Hello everybody,
 
-In the [last part][part2], we've learned about the Optional type and how to use it correctly. Today, we will learn about `Streams`, which you use as an functional alternative of working with Collections, Iterables and so on.
+In the [last part][part2], we've learned about the Optional type and how to use it correctly. Today, we will learn about `Streams`, which you use as an functional alternative of working with Collections.
 Some method were already seen when we used Optionals. I won't explain them all in detail again, so be sure to check out [the part about Optionals][part2]
 
 ## Where do we use Streams?
@@ -22,7 +22,7 @@ And that's the reason we will learn to transform the most common data structures
 ## Why do we use Streams?
 Streams are a wonderful new way to work with data collections. They were introduced in Java 8. One of the many reasons you should use them is the *Cascade* pattern that Streams use. This basically means that almost every Stream method returns the Stream again, so you can continue to work with it. In the next sections, you will see how this works and that it makes the code nicer.
 
-Streams are also immutable. So everytime you manipulate it, you create a new Stream.
+Streams are also immutable. So every time you manipulate it, you create a new Stream.
 
 Another nice thing about them is that they respect the properties of *fP*. If you convert a Data Structure into a Stream and work on it, the original data structure won't be changed. So no side effects here!
 
@@ -38,8 +38,6 @@ public void convertObjects() {
 {% endhighlight %}
 
 ### Converting Collections (Lists, Sets, ...) and Arrays
-TODO Überall iterable raus. Auch Part2
-
 Luckily, Oracle has thought through the implementation of Streams in Java 8. Every Class that implements [java.util.Collection\<T\>][javaDocCollection] and [java.util.Arrays][javaDocArrays] have a new method called `stream()` which converts the collection into a Stream. It's as easy as it get's.
 
 {% highlight java %}
@@ -61,9 +59,9 @@ As I already said, Streams are the way to work with data structures functional. 
 In the next sections, I will use T as the type of the objects in the Stream.
 
 ### Methods we already know
-You can use some methodes we already heard about when we learned about Optionals also with Streams.
-#### map
+You can use some methods we already heard about when we learned about Optionals also with Streams.
 
+#### map
 This works pretty straight forward. Instead of manipulating one item, which might be in the Optional, we manipulate all items in a stream. So if you have a function, that doubles a number, you can use map to use this function over a list of numbers without writing a new function for lists.
 
 {% highlight java %}
@@ -75,7 +73,7 @@ public void showMap() {
 {% endhighlight %}
 
 #### flatMap
-Like in Optional, we use flatMap to going e.g from a Stream<List<Integer>> to Stream<Integer>. If you want to know more about look into [part 2][part2]
+Like with Optionals, we use flatMap to going e.g from a Stream<List<Integer>> to Stream<Integer>. If you want to know more about look into [part 2][part2]
 Here, we want to concat multiple Lists into one big List.
 
 {% highlight java %}
@@ -149,7 +147,7 @@ public void showCollect() {
 }
 {% endhighlight %}
 
-But you can use collect for much more. For example, you can join Strings. Therefore, you don't have the nasty delimeter in the end of the string.
+But you can use collect for much more. For example, you can join Strings. Therefore, you don't have the nasty delimiter in the end of the string.
 
 {% highlight java %}
 public void showReduceConcat() {
@@ -168,7 +166,7 @@ These are methods which you could emulate by using map, filter and collect, but 
 #### reduce
 Reduce is a very cool function.
 It takes a start parameter of type T and a Function of type `BiFunction<T, T, T>`. If you have a BiFunction, where all types are the same, `BinaryOperator<T>` is a shortcut for that.
-It basically stores all objects in the stream to one object. You can concat all Strings into one String, sum all Numbers and so on. There, your star parametrs would be the empty String or zero. This function helps a lot to make your code more readable if you know how to use it.
+It basically stores all objects in the stream to one object. You can concat all Strings into one String, sum all Numbers and so on. There, your star parameters would be the empty String or zero. This function helps a lot to make your code more readable if you know how to use it.
 
 {% highlight java %}
 public void showReduceSum() {
@@ -217,7 +215,7 @@ public void sumWithIntStream() {
 ### Use Streams for Tests
 Tests can also be used to test your methods. I will use the method `anyMatch` here, but `count`, `max` and so on. If something goes wrong, use `peek` to log data. It's like forEach, but also returns the stream. As always, look into the [JavaDoc][streamJavaDoc] to find other cool methods.
 
-`anyMatch` is a little bit like filter, but it tells you if anything passes the filter. You can use this in `assertTrue()` tests, where you just want to look if one (or many) particualar objects have a specific property.
+`anyMatch` is a little bit like filter, but it tells you if anything passes the filter. You can use this in `assertTrue()` tests, where you just want to look if one (or many) particular objects have a specific property.
 In the next example, I will test if a specific name was stored in the DB.
 
 
@@ -238,7 +236,7 @@ public void testIfNameIsStored() {
 {% endhighlight %}
 
 ### Shortcuts of Shortcuts
-And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which compines `forEach` and `sorted`. If you are intrested in other helpful methods, watch into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If it looks ugly, there's a better method to use 😉.
+And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which combines `forEach` and `sorted`. If you are interested in other helpful methods, watch into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If it looks ugly, there's a better method to use 😉.
 
 ### A Bigger Example
 In this example, we want to send a message to every user whose birthday's today.
@@ -294,7 +292,7 @@ public class MainClass {
 
 #### The Greeting
 
-Now, we want to greet the birthday childs.
+Now, we want to greet the birthday children.
 So first off, we have to filter out all Users whose birthday is today. After that, we have to message them. So let's do this.
 
 I won't implement `sendMessage(String message, User receiver)` here, but it just sends a message to a given user.
@@ -321,7 +319,7 @@ So be prepared to run into nasty bugs with parallel Streams, although it can mak
 
 ## Conclusion
 That's it for today!
-We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data strcuture. I have introduced the most common methods and when you should use them. In the end, we tested our knowledge with a bigger example, where we greeted all birthday childs.
+We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data structure. I have introduced the most common methods and when you should use them. In the end, we tested our knowledge with a bigger example, where we greeted all birthday children.
 
 In the next part of this series, we will have a big example where we are going to use Streams. But I won't tell you the example yet, so be surprised.
 

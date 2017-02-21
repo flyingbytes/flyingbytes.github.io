@@ -179,7 +179,7 @@ You should use Optionals just as a return value from a function. It's not a good
 That's it for today!
 We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
 
-In the next part, we will use *Streams* as a new way to handle a Collection of Objects, like Iterables and Collections.
+In the next part, we will use *Streams* as a new way to handle a Collection of Objects.
 
 Thanks for reading and have a nice day,
 
