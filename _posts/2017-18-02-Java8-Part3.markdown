@@ -22,6 +22,8 @@ And that's the reason we will learn to transform the most common data structures
 ## Why do we use Streams?
 Streams are a wonderful new way to work with data collections. They were introduced in Java 8. One of the many reasons you should use them is the *Cascade* pattern that Streams use. This basically means that almost every Stream method returns the Stream again, so you can continue to work with it. In the next sections, you will see how this works and that it makes the code nicer.
 
+Streams are also immutable. So everytime you manipulate it, you create a new Stream.
+
 Another nice thing about them is that they respect the properties of *fP*. If you convert a Data Structure into a Stream and work on it, the original data structure won't be changed. So no side effects here!
 
 ## How to Convert Data Structures into Streams
@@ -30,39 +32,27 @@ Another nice thing about them is that they respect the properties of *fP*. If yo
 If you want to make a Stream out of some objects, you can use the method `Stream.of()`
 
 {% highlight java %}
-public void convertObejcts() {
-    Stream<String> arrayStream = Strings.of("Hello","World");
+public void convertObjects() {
+    Stream<String> arrayStream = Stream.of("Hello","World");
 }
 {% endhighlight %}
 
 ### Converting Collections (Lists, Sets, ...) and Arrays
+TODO Überall iterable raus. Auch Part2
 
-Luckily, Oracle has thought through the implementation of Streams in Java 8. Every Class that implements [java.util.Collection\<T\>][javaDocCollection] and [java.util.Arrays][javaDocArrays] have a new method called `stream()` which converts the collection into a Stream. It's as easy as it get's. 
+Luckily, Oracle has thought through the implementation of Streams in Java 8. Every Class that implements [java.util.Collection\<T\>][javaDocCollection] and [java.util.Arrays][javaDocArrays] have a new method called `stream()` which converts the collection into a Stream. It's as easy as it get's.
 
 {% highlight java %}
 public void convertStuff() {
     String[] array = {"apple", "banana"};
-    Set<String> set = new HashSet<>();
-    List<Integer> list = new LinkedList<>();
+    Set<String> emptySet = new HashSet<>();
+    List<Integer> emptyList = new LinkedList<>();
 
-    Stream<String> arrayStream = Arrays.stream(array)
-    Stream<String> setStream = set.stream();
-    Stream<Integer> listStream = list.stream();
+    Stream<String> arrayStream = Arrays.stream(array);
+    Stream<String> setStream = emptySet.stream();
+    Stream<Integer> listStream = emptyList.stream();
 }
 {% endhighlight %}
-
-
-### Converting Iterables
-The conversion of an Iterables into a Stream is a bit trickier. However, Oracle also introduced the `StreamSupport` class to help with them.
-
-{% highlight java %}
-public void convertStuff() {
-    Iterables<String> iter = new Iterable<>();
-
-    Stream<Integer> iterStream = StreamSupport.stream(iterable.spliterator(), false);
-}
-{% endhighlight %}
-...
 
 However, normally you won't store a Stream as an object. You just work with them and convert them back into your desired data structure.
 
@@ -72,57 +62,45 @@ In the next sections, I will use T as the type of the objects in the Stream.
 
 ### Methods we already know
 You can use some methodes we already heard about when we learned about Optionals also with Streams.
-#### map 
+#### map
 
 This works pretty straight forward. Instead of manipulating one item, which might be in the Optional, we manipulate all items in a stream. So if you have a function, that doubles a number, you can use map to use this function over a list of numbers without writing a new function for lists.
 
 {% highlight java %}
 public void showMap() {
-    List<Integer> numbers = Arrays.of(1, 2, 3)
-
-    Streeam.of(1, 2, 3)
+    Stream.of(1, 2, 3)
         .map(num -> num * num)
-        .forEach(System.out::println) // -> 1 4 9
+        .forEach(System.out::println); // 1 4 9
 }
 {% endhighlight %}
 
 #### flatMap
 Like in Optional, we use flatMap to going e.g from a Stream<List<Integer>> to Stream<Integer>. If you want to know more about look into [part 2][part2]
-Here, we want to concat multiple Lists and concat multiple Strings into one big String.
+Here, we want to concat multiple Lists into one big List.
 
 {% highlight java %}
 public void showFlatMapLists() {
-    List<Integer> numbers1 = Arrays.of(1, 2, 3);
-    List<Integer> numbers2 = Arrays.of(4, 5, 6);
+    List<Integer> numbers1 = Arrays.asList(1, 2, 3);
+    List<Integer> numbers2 = Arrays.asList(4, 5, 6);
 
     Stream.of(numbers1, numbers2) //Stream<List<Integer>>
         .flatMap(List::stream)  //Stream<Integer>
-        .forEach(System.out::println) // -> 1 2 3 4 5 6
-}
-
-public void showFlatMapStrings() {
-    String hello = "Hello ";
-    String world = "World!";
-
-    Stream.of(hello, world) //Stream<String>
-        .flatMap(string -> Arrays.stream(string.toCharArray()))  //Stream<char>
-        .forEach(System.out::print) // -> Hello World!
+        .forEach(System.out::println); // 1 2 3 4 5 6
 }
 {% endhighlight %}
-
 
 And in these examples, we already saw another Stream method which I will describe now.
 
 ### Common Stream methods
 
 #### forEach
-The `forEach` function is like map, but you use it when you have side effects. As already shown, you use it to e.g. print all object in a stream. forEach is one of the few Stream methods that doesn't give back the Stream, so you use it as the last method of a Stream and only once. 
+The `forEach` function is like map, but you use it when you have side effects. As already shown, you use it to e.g. print all object in a stream. forEach is one of the few Stream methods that doesn't give back the Stream, so you use it as the last method of a Stream and only once.
 You should be careful when using forEach, because it causes side effects which we don't won't to have. So think twice if you could replace it with another method without side effects.
 
 {% highlight java %}
-public void showFilter() {
+public void showForEach() {
     Stream.of(0, 1, 2, 3)
-        .forEach(System.out::println) // -> 0, 1, 2, 3
+        .forEach(System.out::println); // 0 1 2 3
 }
 {% endhighlight %}
 
@@ -134,28 +112,28 @@ Filter is a really basic method. It takes a 'test' function that takes a value a
 public void showFilter() {
     Stream.of(0, 1, 2, 3)
         .filter(num -> num < 2)
-        .forEach(System.out::println) // -> 0, 1
+        .forEach(System.out::println); // 0 1
 }
 {% endhighlight %}
 
 Functions that can make your life way easier when creating 'test' functions are `Predicate.negate()` and `Objects.nonNull()`.
-The first one basically negates the test. Every object which doesn't pass the original test, will pass the negated test and vice versa. 
+The first one basically negates the test. Every object which doesn't pass the original test, will pass the negated test and vice versa.
 The second one can be used as a method reference to get rid of every null object in the Stream. This will help you to prevent `NullPointerExeptions` when e.g. mapping functions.
 
 {% highlight java %}
 public void negateFilter() {
-    Predicate<Integer> small = num -> num < 2
+    Predicate<Integer> small = num -> num < 2;
 
     Stream.of(0, 1, 2, 3)
         .filter(small.negate()) // Now every big number passes
-        .forEach(System.out::println) // -> 2, 3
+        .forEach(System.out::println); // 2 3
 }
 
 public void filterNull() {
     Stream.of(0, 1, null, 3)
-        .filter(Object::nonNull)
+        .filter(Objects::nonNull)
         .map(num -> num * 2) // without filter, you would've got a NullPointerExeception
-        .forEach(System.out::println) // -> 0, 2, 6
+        .forEach(System.out::println); // 0 2 6
 }
 {% endhighlight %}
 
@@ -165,11 +143,9 @@ As I already said, you want to transform your stream back into another data stru
 
 {% highlight java %}
 public void showCollect() {
-    List<Integer> numbers = Arrays.of(0, 1, 2, 3)
-
-    List<Integer> filtered = numbers.stream()
+    List<Integer> filtered = Stream.of(0, 1, 2, 3)
         .filter(num -> num < 2)
-        .collect(Collectors.toList())
+        .collect(Collectors.toList());
 }
 {% endhighlight %}
 
@@ -177,12 +153,10 @@ But you can use collect for much more. For example, you can join Strings. Theref
 
 {% highlight java %}
 public void showReduceConcat() {
-    List<Stream> words = Arrays.of("Who", "are", "you?")
+    String sentence = Stream.of("Who", "are", "you?")
+        .collect(Collectors.joining(" "));
 
-    Stirng sentence = Stream.of("Who", "are", "you?")
-        .collect(Collectors.joining(" "))
-
-    System.out.println(sentence) --> Who are you ?
+    System.out.println(sentence); // Who are you?
 
 }
 {% endhighlight %}
@@ -198,16 +172,15 @@ It basically stores all objects in the stream to one object. You can concat all 
 
 {% highlight java %}
 public void showReduceSum() {
-
     Integer sum = Stream.of(1, 2, 3)
-        .reduce(0, Integer::sum)
+        .reduce(0, Integer::sum);
 
-    System.out.println(sum) --> 6
+    System.out.println(sum); // 6
 }
 {% endhighlight %}
 
-Now I will give a little bit more information how reduce works. Here, it sums 
-the first number with 
+Now I will give a little bit more information how reduce works. Here, it sums
+the first number with
 the sum of the second and
     the sum of the third and start parameter.
 
@@ -219,12 +192,10 @@ You can also use Streams to sort your data structure. The class type of the obje
 The sorted function of the Stream will interpret these ints and will sort the elements with the help of it.
 
 {% highlight java %}
-public void showReduceSum() {
-
+public void showSort() {
     Stream.of(3, 2, 4, 0)
         .sorted((c1, c2) -> c1 - c2)
-        .forEach(System.out::println) // -> 0,2,3,4
-
+        .forEach(System.out::println); // 0 2 3 4
 }
 {% endhighlight %}
 
@@ -238,8 +209,8 @@ Here, I will show you how to sum numbers without reduce, but with an IntStream
 {% highlight java %}
 public void sumWithIntStream() {
     Integer sum = Stream.of(0, 1, 2, 3)
-        .mapToInt(id) // Takes the argument and returns it back
-        .sum()
+        .mapToInt(num -> num)
+        .sum();
 }
 {% endhighlight %}
 
@@ -279,7 +250,7 @@ A user is defined by their username and it's birthday. The birthdays will be in 
 public class User {
 
     private String username;
-    private String birthday.
+    private String birthday;
 
     public User(String username, String birthday) {
         this.username = username;
@@ -309,12 +280,12 @@ public class MainClass {
         User otherUser = new User("kid", "23.02.2008");
         User birthdayChild2 = new User("bruce", "20.02.1980");
 
-        users.add(todayBirthday, otherUser);
+        users.addAll(Arrays.asList(birthdayChild, otherUser, birthdayChild2));
 
         greetAllBirthdayChilds(users);
     }
 
-    private static void greetAllBirthdayChilds(List<Person> users) {
+    private static void greetAllBirthdayChilds(List<User> users) {
         // Next Section
     }
 
@@ -329,11 +300,11 @@ So first off, we have to filter out all Users whose birthday is today. After tha
 I won't implement `sendMessage(String message, User receiver)` here, but it just sends a message to a given user.
 
 {% highlight java %}
-public static void greetAllBirthdayChilds(List<Person> users) {
+public static void greetAllBirthdayChilds(List<User> users) {
     String today = "20.02"; //Just to make the example easier. In production, you would use LocalDateTime or so.
     users.stream()
         .filter(user -> user.getBirthday().startsWith(today))
-        .forEach(sendMessage("Happy birthday, ".concat(user.getName()).concat("!"), user));
+        .forEach(user -> sendMessage("Happy birthday, ".concat(user.getUsername()).concat("!"), user));
 }
 
 private static void sendMessage(String message, User receiver) {
