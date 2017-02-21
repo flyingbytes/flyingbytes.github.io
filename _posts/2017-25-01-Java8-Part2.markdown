@@ -98,7 +98,9 @@ public void workWithFirstStringInDB() {
 }
 {% endhighlight %}
 
-The `Optional.ifPresent()` method is our new best friend to replace the if. It takes a Function, so a Lambda or method reference, and applies it only when the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again.
+The `Optional.ifPresent()` method is our new best friend to replace the if. It takes a Function, so a Lambda or method reference, and applies it only when the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again. 
+
+You use ifPresent() when you want to do something that produces a side effect. Storing something in the DB and IO are two common examples for side effects. If you don't need side effects, you shouldn't use ifPresent(), but map(), which is part of the next section.
 
 #### 2.2. Returning a Modified Version of the Value
 
