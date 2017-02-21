@@ -76,7 +76,7 @@ public void showMap() {
 {% endhighlight %}
 
 #### flatMap
-Like with Optionals, we use flatMap to going e.g from a Stream<List<Integer>> to Stream<Integer>. If you want to know more about look into [part 2][part2]. TODOWarumgehtdasnicht
+Like with Optionals, we use flatMap to going e.g from a Stream\<List\<Integer\>\> to Stream\<Integer\>. If you want to know more about look into [part 2][part2].
 
 Here, we want to concat multiple Lists into one big List.
 
