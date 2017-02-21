@@ -46,7 +46,7 @@ public String greet(List<String> names) {
 
 If you think think that this looks nasty, you're right! But there is a *fP* function to make this nicer.
 
-I will give you the right *fP* function here. Don't worry if you don't understand it now, I will talk about all of this in later posts.
+I will give you the right *fP* function here. Don't worry if you don't understand it now, we will talk about all of this in [part 3][part3]
 
 {% highlight java %}
 public String greet(List<String> names) {
@@ -123,7 +123,7 @@ There is also the chance to change the state of numbers. This could lead to prob
 In *fP*, you can map a function with every element of a List. In this example this means, that you want to "map"
 number+1 to every item in the list and store this in a new List.
 
-Don't worry if you don't understand all of it now, we will learn about this later on. The *fP* method would look like this:
+Don't worry if you don't understand all of it now, we will learn about this in [part 3][part3]. The *fP* method would look like this:
 
 {% highlight java %}
 public List<Integer> addOne(List<Integer> numbers) {
@@ -169,3 +169,4 @@ s.setAttribute('data-timestamp', +new Date());
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 [prev-post]: https://flyingbytes.github.io/programming/java8/functional/dfsandbfs/2017/01/02/DFS-BFS.html
+[part3]: https://flyingbytes.github.io/programming/java8/functional/part3/2017/02/18/Java8-Part3.html
