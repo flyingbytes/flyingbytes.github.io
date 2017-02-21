@@ -258,7 +258,7 @@ public void testIfNameIsStored() {
 ### Shortcuts of Shortcuts
 And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which combines `forEach` and `sorted`.
 
-If you are interested in other helpful methods, look into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If your code looks ugly, there's a better method to use 😉.
+If you are interested in other helpful methods, look into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If your code looks ugly, there's a better method to use ;).
 
 ### A Bigger Example
 In this example, we want to send a message to every user whose birthday's today.
