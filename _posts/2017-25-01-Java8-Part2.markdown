@@ -1,0 +1,212 @@
+---
+layout: post
+title:  "An Introduction to Functional Programming in Java 8: Part 2 - Optionals"
+date:   2017-02-04 13:00:00 +0100
+categories: programming java8 functional part2
+---
+
+Hello everybody,
+
+After we've made our first big steps into functional programming in the [last post][part1], we will talk about Optionals in today's part.
+
+## Why do we need Optionals?
+Hand on heart, you also think that null is annoying, don't you? For every argument which can be null, you have to check whether it is null or not. 
+{% highlight java %}
+if(argument == null) {
+    throw new NullPointerException();
+}
+{% endhighlight %}
+
+These lines suck! This is a boilerplate that bloats up your code and can be easily forgotten. So how can we fix that?
+
+## Introducing Optionals
+In Java 8, [java.util.Optional\<T\>][optionalJavaDoc] was introduced to handle objects which might not exist better. 
+It is a container object that can hold another object.
+The Generic *T* is the type of the object you want to contain.
+
+{% highlight java %}
+Integer i = 5;
+Optional<Integer> optinalI = Optional.of(i);
+{% endhighlight %}
+
+The Optional class doesn't have any public constructor. To create an optional, you have to use `Optional.of(object)` or `Optional.ofNullable(object)`.
+You use the first one if the object is never, ever null. The second one is used for nullable objects.
+
+### How do optionals work? 
+Options have two states. They either hold an object or they hold null. If they hold an object, optionals are called *present*, if they hold null, they are called *empty*. If they are not empty, you can get the object in the optional by using `Optional.get()`. But be careful, because a *get()* on an empty optional will cause a `NoSuchElementException`. You can check if a optional is present by calling the method `Optional.isPresent()`
+
+#### Example: Playing with Optionals
+{% highlight java %}
+public void playingWithOptionals() {
+    String s = "Hello World!";
+    String nullString = null;
+
+    Optional<String> optionalS1 = Optional.of(s); // Will work
+    Optional<String> optionalS2 = Optional.ofNullable(s); // Will work too
+    Optional<String> optionalNull1 = Optional.of(nullString); // -> NullPointerException
+    Optional<String> optionalNull2 = Optional.ofNullable(nullString); // Will work
+
+    System.out.println(optionalS1.get()); // prints "Hello World!"
+    System.out.println(optionalNull2.get()); // -> NoSuchElementException
+    if(!optionalNull2.isPresent()) {
+        System.out.println("Is empty"); // Will be printed
+    }
+}
+{% endhighlight %}
+
+## Common problems when using Optionals
+
+### 1. Working with Optional **and** null
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first != null) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+
+This is just the wrong use of an Optional! If you get an Optional (In the example you get one from the DB), you don't have to look whether the object is null or not! If there's no string in the DB, it will return `Optional.empty()`, not `null`! If you got an empty Optional from the DB, there would also be a `NoSuchElementException` in this example.
+
+### 2. Using isPresent() and get()
+
+#### 2.1. Doing something when the value is present
+
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    if(first.isPresent()) {
+        String value = first.get(); 
+        //... 
+    }
+}
+{% endhighlight %}
+
+As I already said, you should always be 100% sure if an Optional is present before you use `Optional.get()`. You wouldn't get a `NoSuchElementException` anymore in the updated function. But you shouldn't check a optional with the `isPresent() + get()` combo! Because if you do it like that, you could have used *null* in the first place. You would replace `first.isPresent()` with `first != null` and you have the same result. But how can we replace this annoying if-block with the help of Optionals?
+
+{% highlight java %}
+public void workWithFirstStringInDB() {
+    DBConnection dB = new DBConnection();
+    Optional<String> first = dB.getFirstString();
+
+    first.ifPresent(value -> /*...*/);
+}
+{% endhighlight %}
+
+The `Optional.ifPresent()` method is our new best friend to replace the if. It takes a Function, so a Lambda or method reference, and applies it only when the value is present. If you don't remember how to use method references or Lambdas, you should read the [last part][part1] of this series again. 
+
+You use ifPresent() when you want to do something that produces a side effect. Storing something in the DB and IO are two common examples for side effects. If you don't need side effects, you shouldn't use ifPresent(), but map(), which is part of the next section.
+
+#### 2.2. Returning a Modified Version of the Value
+
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    if(value.isPresent()) {
+       return value.get() * 2;
+    }
+
+    return 0;
+}
+{% endhighlight %}
+
+In this method, we want to double the value of an optional, if it is present. Otherwise, we return zero. The given example works, but it isn't the functional way of solving this problem.
+To make this a lot nicer, we have two function that are coming to help us. 
+The first one's `Optional.map(Function<T, R> mapper)` and the second one's `Optional.orElse(T other)`.
+`map` takes a function, applies it on the value and returns the result of the function, wrapped in an Optional again. If the Optional is empty, it will return an empty Optional again.
+`orElse` returns the value of the Optional it is called on. If there is no value, it returns the value you gave `orElse(object)` as a parameter.
+With that in mind, we can make this function a one liner.
+
+{% highlight java %}
+public Integer doubleValueOrZero(Optional<Integer> value) {
+    return value.map(i -> i * 2).orElse(0);
+}
+{% endhighlight %}
+
+## Using flatMap()
+There is another really cool method that you can use with Optionals. It's called `flatMap()`.
+
+When you use map on a method that returns an Optional, you basically get an Optional\<Optional\<T\>\>. But you don't want two containers abound your object!
+But you also don't want to rewrite the method nor do you want to call get() or orElse() two times to get the value.
+
+This is the reason there is flatMap. It flattens the Optional\<Optional\<T\>\> to Optional\<T\>.
+In our example, we want to divide 2 Integers. But if we divide by zero, we return `Optional.empty()`. So if we use map and divide, we have a object of type Optional\<Optional\<Double\>\>. That's the reason we use flatMap here.
+
+{% highlight java %}
+public void showFlatMap() {
+    Optional<Double> two = Optional.of(2.0);
+    Optional<Double> zero = Optional.of(0.0);
+    two.flatMap(num -> divide(1.0, num)).orElse(0.0); // 0.5
+    zero.flatMap(num -> divide(1.0, num)).orElse(0.0); // 0.0
+}
+
+public Optional<Double> divide(Double first, Double second) {
+    if(second == 0.0) {
+       return Optional.empty();
+    }
+
+    return Optional.of(first / second);
+}
+{% endhighlight %}
+
+## When Should you use Nullable Objects and when Optionals?
+You can find a lot of books, [talks][optionalTalks] and discussions about the question: Should you use null or Optional in some particular case. And both have their right to be used. 
+In the linked talk, you will find a nice rule which you can apply in most of the cases. Use Optionals when *"there is a clear need to represent 'no result' or where null is likely to cause errors."*.
+
+So you shouldn't use Optionals like this:
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return Optional.ofNullable(string).orElse("default");
+}
+{% endhighlight %}
+
+Because a null check is much easier to read.
+
+{% highlight java %}
+public String defaultIfOptional(String string) {
+    return (string != null) ? string : "default";
+}
+{% endhighlight %}
+
+You should use Optionals just as a return value from a function. It's not a good idea to create new ones to make a cool method chain like in the example above. Most of the times, null is enough.
+
+## Conclusion
+That's it for today!
+We have played with the Optional class. It's a container class for other classes which is either present or not present(*empty*). We have removed some common code smell that comes with Optionals and used functions as objects again. We also discussed when you should use null and when Optionals.
+
+In the next part, we will use *Streams* as a new way to handle a Collection of Objects.
+
+Thanks for reading and have a nice day,
+
+Niklas
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//flyingbytes.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+[part1]: https://flyingbytes.github.io/programming/java8/functional/part1/2017/01/23/Java8-Part1.html
+[optionalJavaDoc]: https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
+[optionalTalks]: https://www.youtube.com/watch?v=Ej0sss6cq14
