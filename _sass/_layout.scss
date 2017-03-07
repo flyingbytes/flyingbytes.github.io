@@ -202,14 +202,14 @@
         }
     }
 
-    .next {
+    .previous {
         span:before {
             border-left: 0;
             border-right-color: $grey-color;
         }
     }
 
-    .previous {
+    .next {
         text-align: right;
 
         span:after {
