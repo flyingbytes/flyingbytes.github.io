@@ -6,6 +6,7 @@ categories: programming java8 functional part4
 ---
 TODO letzter Absatz: Optimizing with a Builder Pattern
 TODO Was, wenn keins den Filter erfüllt? Dann leerer Stream?
+TODO Optimieren: Nur eine Function, die mir Stream gibt und ich in einem einzigen Lambda alles damit machen kann?
 
 Hello everybody,
 
