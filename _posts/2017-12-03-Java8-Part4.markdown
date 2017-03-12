@@ -1,0 +1,394 @@
+---
+layout: post
+title:  "An Introduction to Functional Programming in Java 8: Part 4 - Splitter"
+date:   2017-02-18 13:00:00 +0100
+categories: programming java8 functional part4
+---
+TODO letzter Absatz: Optimizing with a Builder Pattern
+TODO Was, wenn keins den Filter erfüllt? Dann leerer Stream?
+
+Hello everybody,
+
+In the [last parts][part3], we've learned about the most basic ways to program functional in Java. We used functions as Objects, Streams and so on for this.
+
+Today, we want to create a useful example with them. You will train the paradicmas of the last parts and learn how the optimize the run time of your program.
+
+## Example: Split a Stream by a specific filter
+
+You might have stumbled over a problem like this before: You have a collection of objects and want to split them by a specific filter. After that, you want to perform some action with all elements who passed the test and another action with the ones that didn't passed the test.
+
+### The Basic (and Slow) Approach
+
+{% highlight java %}
+public void splitAndPerform(Collection<T> items, Pedicate<T> splitBy, Function<T> passed, Function<T> notPassed) {
+    items.stream()
+        .filter(splitBy)
+        .forEach(passed)
+
+    items.stream()
+        .filter(Predicate.negate(splitBy))
+        .forEach(notPassed)
+}
+{% endhighlight %}
+
+This approch works, but it is pretty slow. The run time for splitting alone is O(2n) TODOMathJax?, because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
+
+But what if we would create a splitter on our own? It'd sort all items in the collection, depending on whether or not they pass the test, into one Stream or the other. This would lower the run time to split the collection to O(n), because you just have to call filter once, not twice.
+
+So let's do this.
+
+### Convert Multiple Objects into a Stream
+If you want to make a Stream out of some objects, you can use the method `Stream.of()`
+
+{% highlight java %}
+public void convertObjects() {
+    Stream<String> objectStream = Stream.of("Hello", "World");
+}
+{% endhighlight %}
+
+### Converting Collections (Lists, Sets, ...) and Arrays
+Luckily, Oracle has thought through the implementation of Streams in Java 8. Every Class that implements [java.util.Collection\<T\>][javaDocCollection] has a new method called `stream()` which converts the collection into a Stream. Also Arrays can be converted easily with `Arrays.stream(array)`. It's as easy as it get's.
+
+{% highlight java %}
+public void convertStuff() {
+    String[] array = {"apple", "banana"};
+    Set<String> emptySet = new HashSet<>();
+    List<Integer> emptyList = new LinkedList<>();
+
+    Stream<String> arrayStream = Arrays.stream(array);
+    Stream<String> setStream = emptySet.stream();
+    Stream<Integer> listStream = emptyList.stream();
+}
+{% endhighlight %}
+
+However, normally you won't store a Stream in an object. You just work with them and convert them back into your desired data structure.
+
+## Working with Streams
+As I already said, Streams are the way to work with data structures functional. And now we will learn about the most common methods to use.
+
+As a side note: In the next sections, I will use `T` as the type of the objects in the Stream.
+
+### Methods we already know
+You can use some methods we already heard about when we learned about Optionals also with Streams.
+
+#### map
+This works pretty straight forward. Instead of manipulating one item, which might be in the Optional, we manipulate all items in a stream. So if you have a function that squares a number, you can use map to use this function over multiple numbers without writing a new function for lists.
+
+{% highlight java %}
+public void showMap() {
+    Stream.of(1, 2, 3)
+        .map(num -> num * num)
+        .forEach(System.out::println); // 1 4 9
+}
+{% endhighlight %}
+
+#### flatMap
+Like with Optionals, we use flatMap to going e.g from a Stream\<List\<Integer\>\> to Stream\<Integer\>. If you want to know more about look into [part 2][part2].
+
+Here, we want to concat multiple Lists into one big List.
+
+{% highlight java %}
+public void showFlatMapLists() {
+    List<Integer> numbers1 = Arrays.asList(1, 2, 3);
+    List<Integer> numbers2 = Arrays.asList(4, 5, 6);
+
+    Stream.of(numbers1, numbers2) //Stream<List<Integer>>
+        .flatMap(List::stream)  //Stream<Integer>
+        .forEach(System.out::println); // 1 2 3 4 5 6
+}
+{% endhighlight %}
+
+And in these examples, we already saw another Stream method, `forEach()`, which I will describe now.
+
+### Common Stream methods
+
+#### forEach
+The `forEach` method is like the `ifPresent` method from Optionals, so you use it when you have side effects. As already shown, you use it to e.g. print all objects in a stream. forEach is one of the few Stream methods that doesn't return the Stream, so you use it as the last method of a Stream and only once.
+
+You should be careful when using forEach, because it causes side effects which we don't won't to have. So think twice if you could replace it with another method without side effects.
+
+{% highlight java %}
+public void showForEach() {
+    Stream.of(0, 1, 2, 3)
+        .forEach(System.out::println); // 0 1 2 3
+}
+{% endhighlight %}
+
+#### filter
+Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out. 
+
+This 'test' function has the type `Function<T, Boolean>`. In the [JavaDoc][streamJavaDoc], you will see that the test function really is of the type `Predicate<T>`. But this is just a short form for every function that takes one parameter and returns a boolean.
+
+
+{% highlight java %}
+public void showFilter() {
+    Stream.of(0, 1, 2, 3)
+        .filter(num -> num < 2)
+        .forEach(System.out::println); // 0 1
+}
+{% endhighlight %}
+
+Functions that can make your life way easier when creating 'test' functions are `Predicate.negate()` and `Objects.nonNull()`.
+
+The first one basically negates the test. Every object which doesn't pass the original test will pass the negated test and vice versa.
+
+The second one can be used as a method reference to get rid of every null object in the Stream. This will help you to prevent `NullPointerExeptions` when e.g. mapping functions.
+
+{% highlight java %}
+public void negateFilter() {
+    Predicate<Integer> small = num -> num < 2;
+
+    Stream.of(0, 1, 2, 3)
+        .filter(small.negate()) // Now every big number passes
+        .forEach(System.out::println); // 2 3
+}
+
+public void filterNull() {
+    Stream.of(0, 1, null, 3)
+        .filter(Objects::nonNull)
+        .map(num -> num * 2) // without filter, you would've got a NullPointerExeception
+        .forEach(System.out::println); // 0 2 6
+}
+{% endhighlight %}
+
+
+#### collect
+As I already said, you want to transform your stream back into another data structure. And that is what you use Collect for. And most of the times, you convert it into a List or a Set.
+
+{% highlight java %}
+public void showCollect() {
+    List<Integer> filtered = Stream.of(0, 1, 2, 3)
+        .filter(num -> num < 2)
+        .collect(Collectors.toList());
+}
+{% endhighlight %}
+
+But you can use collect for much more. For example, you can join Strings. Therefore, you don't have the nasty delimiter in the end of the string.
+
+{% highlight java %}
+public void showJoining() {
+    String sentence = Stream.of("Who", "are", "you?")
+        .collect(Collectors.joining(" "));
+
+    System.out.println(sentence); // Who are you?
+
+}
+{% endhighlight %}
+
+### Shortcuts
+
+These are methods which you could mostly emulate by using map, filter and collect, but these shortcut method are meant to be used because they declutter your code.
+
+#### reduce
+Reduce is a very cool function.
+
+It takes a start parameter of type T and a Function of type `BiFunction<T, T, T>`. If you have a BiFunction where all types are the same, `BinaryOperator<T>` is a shortcut for that.
+
+It basically stores all objects in the stream to one object. You can concat all Strings into one String, sum all numbers and so on. There, your start parameters would be the empty String or zero. This function helps a lot to make your code more readable if you know how to use it.
+
+{% highlight java %}
+public void showReduceSum() {
+    Integer sum = Stream.of(1, 2, 3)
+        .reduce(0, Integer::sum);
+
+    System.out.println(sum); // 6
+}
+{% endhighlight %}
+
+Now I will give a little bit more information how reduce works. Here, it sums
+
+the first number with
+
+the sum of the second and
+
+&nbsp;&nbsp;&nbsp;&nbsp;the sum of the third and start parameter.
+
+As you can see, this produces a long chain of functions. In the end, we have sum(1, sum(2, sum(3, 0))). And this will be computed from right to left, or from the inside out. This is also the reason we need a start parameter, because otherwise the chain would'nt have a point where it could end.
+
+#### sorted
+You can also use Streams to sort your data structure. 
+
+The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int. 
+
+And this int, like in the `compareTo()` function, shows us if the first object is "smaller" than the first one (int < 0), is as big as the second (int == 0), or is bigger than the second one (int > 0). The sorted function of the Stream will interpret these ints and will sort the elements with the help of them.
+
+{% highlight java %}
+public void showSort() {
+    Stream.of(3, 2, 4, 0)
+        .sorted((c1, c2) -> c1 - c2)
+        .forEach(System.out::println); // 0 2 3 4
+}
+{% endhighlight %}
+
+#### Other Kinds of Streams
+There are also special types of Streams which only contains numbers. With these new Streams you also have a new set of methods. 
+
+Here, I will introduce IntStream and Sum, but there are also LongStream, DoubleStream,... . You can read more about them in the [JavaDoc][streamJavaDoc].
+
+To convert a normal Stream into an IntStream, you have to use `mapToInt`. It does exactly the same as the normal map, but you get a IntStream back. Of course, you have to give the mapToInt function another function which will return an int.
+
+In the example, I will show you how to sum numbers without reduce, but with an IntStream.
+
+{% highlight java %}
+public void sumWithIntStream() {
+    Integer sum = Stream.of(0, 1, 2, 3)
+        .mapToInt(num -> num)
+        .sum();
+}
+{% endhighlight %}
+
+### Use Streams for Tests
+Tests can also be used to test your methods. I will use the method `anyMatch` here, but `count`, `max` and so on can help you too. 
+
+If something goes wrong in your program, use `peek` to log data. It's like forEach, but also returns the stream. As always, look into the [JavaDoc][streamJavaDoc] to find other cool methods.
+
+`anyMatch` is a little bit like filter, but it tells you if anything passes the filter. You can use this in `assertTrue()` tests, where you just want to look if at least one object has a specific property.
+
+In the next example, I will test if a specific name was stored in the DB.
+
+{% highlight java %}
+
+@Test
+public void testIfNameIsStored() {
+    String testName = "Albert Einstein";
+
+    Datebase names = new Datebase();
+    names.drop();
+
+    db.put(testName);
+    assertTrue(db.getData()
+        .stream()
+        .anyMatch(name -> name.equals(testName)));
+}
+{% endhighlight %}
+
+### Shortcuts of Shortcuts
+And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which combines `forEach` and `sorted`.
+
+If you are interested in other helpful methods, look into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If your code looks ugly, there's a better method to use ;).
+
+### A Bigger Example
+In this example, we want to send a message to every user whose birthday's today.
+
+#### The User Class
+A user is defined by their username and birthday. The birthdays will be in the format "day.month.year", but we won't do much checking for this in today's example.
+
+{% highlight java %}
+public class User {
+
+    private String username;
+    private String birthday;
+
+    public User(String username, String birthday) {
+        this.username = username;
+        this.birthday = birthday;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+}
+{% endhighlight %}
+
+To store all users, we will use a List here. In a real program, you might want to switch to a DB.
+
+{% highlight java %}
+public class MainClass {
+
+    public static void main() {
+        List<User> users = new LinkedList<>();
+
+        User birthdayChild = new User("peter", "20.02.1990");
+        User otherUser = new User("kid", "23.02.2008");
+        User birthdayChild2 = new User("bruce", "20.02.1980");
+
+        users.addAll(Arrays.asList(birthdayChild, otherUser, birthdayChild2));
+
+        greetAllBirthdayChildren(users);
+    }
+
+    private static void greetAllBirthdayChildren(List<User> users) {
+        // Next Section
+    }
+
+}
+{% endhighlight %}
+
+#### The Greeting
+
+Now, we want to greet the birthday children.
+
+So first off, we have to filter out all Users whose birthday is today. After this, we have to message them. So let's do this.
+
+I won't implement `sendMessage(String message, User receiver)` here, but it just sends a message to a given user.
+
+{% highlight java %}
+public static void greetAllBirthdayChildren(List<User> users) {
+    String today = "20.02"; //Just to make the example easier. In production, you would use LocalDateTime or so.
+    users.stream()
+        .filter(user -> user.getBirthday().startsWith(today))
+        .forEach(user -> sendMessage("Happy birthday, ".concat(user.getUsername()).concat("!"), user));
+}
+
+private static void sendMessage(String message, User receiver) {
+    //...
+}
+{% endhighlight %}
+
+And now we can send greetings to the users. How nice and easy was that?!
+### Parallelism
+Streams can also be executed parallel. By default, every Stream isn't parallel, but you can use `.parallelStream()` with Streams to make them parallel.
+
+Although it can be cool to use this to make your program faster, you should be careful with it. As shown on [this Site][parallelStream], things like sorting can be messed up by parallelism.
+
+So be prepared to run into nasty bugs with parallel Streams, although it can make your program significantly faster.
+
+## Conclusion
+That's it for today!
+
+We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data structure. 
+
+I have introduced the most common methods and when you should use them. 
+
+In the end, we tested our knowledge with a bigger example where we greeted all birthday children.
+
+In the next part of this series, we will have a big example where we are going to use Streams. But I won't tell you the example yet, so be surprised.
+
+Are there any Stream methods that you miss in the post? Please let me know in the comments. I'd love to hear your feedback too!
+
+Thanks for reading and have a nice day,
+
+Niklas
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//flyingbytes.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+[part2]: https://flyingbytes.github.io/programming/java8/functional/part2/2017/02/04/Java8-Part2.html
+[javaDocCollection]: https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html
+[streamJavaDoc]: https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+[javaDocArrays]: https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html
+[parallelStream]: https://docs.oracle.com/javase/tutorial/collections/streams/parallelism.html
