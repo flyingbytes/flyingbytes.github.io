@@ -34,10 +34,52 @@ public void splitAndPerform(Collection<T> items, Pedicate<T> splitBy, Function<T
 
 This approch works, but it is pretty slow. The run time for splitting alone is O(2n) TODOMathJax?, because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
 
-But what if we would create a splitter on our own? It'd sort all items in the collection, depending on whether or not they pass the test, into one Stream or the other. This would lower the run time to split the collection to O(n), because you just have to call filter once, not twice.
+But what if we would create a splitter on our own? It'd sort all items in the collection, depending on whether or not they pass the test, into one List or the other. This would lower the run time to split the collection to O(n), because you just have to call filter once, not twice.
 
 So let's do this.
 
+## The Better Approach
+### 1. Split the Collection
+
+The first step to building our splitter is to, you guessed it, split it.
+
+In our `splitBy()` function, we want to take a `Predeciate<T>` as a parameter and return a new `Splitter` object, which is basically an objects which consists of two Lists. One List consists of all the objects that passed the test, and the other one of all the objects that didn't pass the test.
+
+{% highlight java %}
+public class Splitter<T> {
+
+    private List<T> passed;
+    private List<T> notPassed;
+
+    private Splitter(List<T> passed, List<T> notPassed) { TODO Wie heißt dieses Pattern, wo private constructor und anderer Constructor
+        this.passed = passed;
+        this.notPassed = notPassed;
+    }
+
+    public splitBy(Predicate<T> test, Collection<T> items){
+        List<T> passed = new LinkedList<T>
+        List<T> notPassed = new LinkedList<T>
+
+        items.stream()
+                .forEach(item -> {
+                    if(test.apply(item)){
+                        passed.add(item)
+                        return;
+                    }
+                    notPassed.add(item)
+                });
+
+        return new Splitter(passed, notPassed);
+    }
+
+}
+{% endhighlight %}
+
+Now that we can create a Splitter object, we want to give it some functionality.
+
+### Work With the Splitted Lists
+
+We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where the TODODesignPattern comes in handy. I heard about it in this TODOTalk and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Function<Stream<T>, Void>`TODO WieKeinenRückgabewert. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and notPassed items.
 ### Convert Multiple Objects into a Stream
 If you want to make a Stream out of some objects, you can use the method `Stream.of()`
 
@@ -116,7 +158,7 @@ public void showForEach() {
 {% endhighlight %}
 
 #### filter
-Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out. 
+Filter is a really basic method. It takes a 'test' function that takes a value and returns boolean. So it test every object in the Stream. If it passes the test, it will stay in the Stream or otherwise, it will be taken out.
 
 This 'test' function has the type `Function<T, Boolean>`. In the [JavaDoc][streamJavaDoc], you will see that the test function really is of the type `Predicate<T>`. But this is just a short form for every function that takes one parameter and returns a boolean.
 
@@ -207,9 +249,9 @@ the sum of the second and
 As you can see, this produces a long chain of functions. In the end, we have sum(1, sum(2, sum(3, 0))). And this will be computed from right to left, or from the inside out. This is also the reason we need a start parameter, because otherwise the chain would'nt have a point where it could end.
 
 #### sorted
-You can also use Streams to sort your data structure. 
+You can also use Streams to sort your data structure.
 
-The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int. 
+The class type of the objects in the Stream doesn't even have to implement `Comperable<T>`, because you can write your own `Comperator<T>`. This is basically a `BiFunction<T, T, int>`, but Comperator is a shortcut for all BiFunctions that take 2 arguments of the same type and return an int.
 
 And this int, like in the `compareTo()` function, shows us if the first object is "smaller" than the first one (int < 0), is as big as the second (int == 0), or is bigger than the second one (int > 0). The sorted function of the Stream will interpret these ints and will sort the elements with the help of them.
 
@@ -222,7 +264,7 @@ public void showSort() {
 {% endhighlight %}
 
 #### Other Kinds of Streams
-There are also special types of Streams which only contains numbers. With these new Streams you also have a new set of methods. 
+There are also special types of Streams which only contains numbers. With these new Streams you also have a new set of methods.
 
 Here, I will introduce IntStream and Sum, but there are also LongStream, DoubleStream,... . You can read more about them in the [JavaDoc][streamJavaDoc].
 
@@ -239,7 +281,7 @@ public void sumWithIntStream() {
 {% endhighlight %}
 
 ### Use Streams for Tests
-Tests can also be used to test your methods. I will use the method `anyMatch` here, but `count`, `max` and so on can help you too. 
+Tests can also be used to test your methods. I will use the method `anyMatch` here, but `count`, `max` and so on can help you too.
 
 If something goes wrong in your program, use `peek` to log data. It's like forEach, but also returns the stream. As always, look into the [JavaDoc][streamJavaDoc] to find other cool methods.
 
@@ -352,9 +394,9 @@ So be prepared to run into nasty bugs with parallel Streams, although it can mak
 ## Conclusion
 That's it for today!
 
-We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data structure. 
+We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data structure.
 
-I have introduced the most common methods and when you should use them. 
+I have introduced the most common methods and when you should use them.
 
 In the end, we tested our knowledge with a bigger example where we greeted all birthday children.
 
