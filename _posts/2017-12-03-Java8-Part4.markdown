@@ -80,6 +80,48 @@ Now that we can create a Splitter object, we want to give it some functionality.
 ### Work With the Splitted Lists
 
 We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where the TODODesignPattern comes in handy. I heard about it in this TODOTalk and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Function<Stream<T>, Void>`TODO WieKeinenRückgabewert. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and notPassed items.
+
+{% highlight java %}
+public class Splitter<T> {
+
+    //...
+
+    public Splitter workWithPassed(Function<Stream, Void> func) {// TODO wie Function ohne rückgabewert?
+        func.apply(passed.stream())
+        return this; // TODO Bennene das DesignPattern, (Cascade pattern -> Ist einfach schöner) 
+    }
+
+    public Splitter workWithNotPassed(Function<Stream, Void> func) {// TODO wie Function ohne rückgabewert?
+        func.apply(notPassed.stream())
+        return this; // TODO Bennene das DesignPattern, (Cascade pattern -> Ist einfach schöner) 
+    }
+
+}
+{% endhighlight %}
+
+And that's basically our Splitter! Now, we can try out some examples on how to use it.
+
+#### Example 1: Showing numbers, but sqauring all odd numbers
+
+In this very first example we want to operate over a list of numbers. For each even number, we just want to print this number out. But for every odd number, we want to square them before we print them out.
+
+So first off, we want to split the list into even and odd numbers. After that, we can work on the lists as already told.
+
+{% highlight java %}
+public void workOnNumbers() {
+    List<Integer> numbers = Array.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+    Splitter.splitBy(numbers, num -> num%2 == 0)
+        .workWithPassed(passed -> 
+            passed.forEach(even -> System.out.printf("{0} -> {1}", even, even))
+        )
+        .workWithNotPassed(notPassed -> 
+            notPassed.map(odd -> odd * odd)
+                .forEach(even -> System.out.printf("{0} -> {1}", Math.sqrt(odd), odd))
+        );
+}
+{% endhighlight %}
+
 ### Convert Multiple Objects into a Stream
 If you want to make a Stream out of some objects, you can use the method `Stream.of()`
 
