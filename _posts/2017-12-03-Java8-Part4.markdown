@@ -6,9 +6,9 @@ categories: programming java8 functional part4
 ---
 Hello everybody,
 
-In the [last parts][part3], we've learned about the most basic ways to program functional in Java. We used functions as Objects, Streams and so on for this.
+In the [last parts][part3], we've learned about the most basic ways to program functional in Java. We used functions as Objects, Streams and so much more.
 
-Today, we want to create a useful example with them. You will train the paradicmas of the last parts and learn how the optimize the run time of your program.
+Today, we want to create a useful example with them. You will train the paradigms of the last parts and learn how the optimize the run time of your program.
 
 ## Example: Split a Stream by a specific filter
 
@@ -28,7 +28,7 @@ public <T> void splitAndPerform(Collection<T> items, Predicate<T> splitBy, Consu
 }
 {% endhighlight %}
 
-This approch works, but it is pretty slow. The run time for splitting alone is O(2n), because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
+This approach works, but it is pretty slow. The run time for splitting alone is O(2n), because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
 
 But what if we would create a splitter on our own? It'd sort all items in the collection, depending on whether or not they pass the test, into one List or the other. This would lower the run time to split the collection to O(n), because you just have to call filter once, not twice.
 
@@ -75,9 +75,9 @@ As you can see, we used the factory method pattern to make the creation of the a
 
 Now that we can create a Splitter object, we want to give it some functionality.
 
-### Work With the Splitted Lists
+### Work With the Split Lists
 
-We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where a nice design pattern comes in handy. I heard about it in this [talk][talk] and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Consumer<Stream<T>>`. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and notPassed items.
+We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where a nice design pattern comes in handy. I heard about it in this [talk][talk] and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Consumer<Stream<T>>`. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and not passed items.
 
 {% highlight java %}
 public class Splitter<T> {
@@ -101,7 +101,7 @@ We used the cascade design pattern here, to make the use of multiple methods nic
 
 And that's basically our Splitter! Now, we can try out some examples on how to use it.
 
-#### Example 1: Showing numbers, but sqauring all odd numbers
+#### Example 1: Showing numbers, but squaring all odd numbers
 
 In this very first example we want to operate over a list of numbers. For each even number, we just want to print this number out. But for every odd number, we want to square them before we print them out.
 
@@ -145,7 +145,7 @@ We have learned how to create our first useful class with the help of Streams. W
 
 Lastly, we have tried out our splitter with some examples.
 
-Next time, we will talk about RxJava. It's a framework that uses the observer pattern for asynchronus tasks and builds upon functional programming.
+Next time, we will talk about RxJava. It's a framework that uses the observer pattern for asynchronous tasks and builds upon functional programming.
 
 Are there any things that your splitter should do too? Please let me know in the comments. I'd love to hear your feedback too!
 
