@@ -28,7 +28,7 @@ public void splitAndPerform(Collection<T> items, Pedicate<T> splitBy, Function<T
 }
 {% endhighlight %}
 
-This approch works, but it is pretty slow. The run time for splitting alone is O(2n) TODOMathJax?, because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
+This approch works, but it is pretty slow. The run time for splitting alone is O(2n), because we go through the whole collection 2 times: Ones to get all the items that passed the test and ones to get all the items that didn't passed it.
 
 But what if we would create a splitter on our own? It'd sort all items in the collection, depending on whether or not they pass the test, into one List or the other. This would lower the run time to split the collection to O(n), because you just have to call filter once, not twice.
 
@@ -47,7 +47,7 @@ public class Splitter<T> {
     private List<T> passed;
     private List<T> notPassed;
 
-    private Splitter(List<T> passed, List<T> notPassed) { TODO Wie heißt dieses Pattern, wo private constructor und anderer Constructor
+    private Splitter(List<T> passed, List<T> notPassed) {
         this.passed = passed;
         this.notPassed = notPassed;
     }
@@ -71,29 +71,33 @@ public class Splitter<T> {
 }
 {% endhighlight %}
 
+As you can see, we used the factory method pattern to make the creation of the app nicer. 
+
 Now that we can create a Splitter object, we want to give it some functionality.
 
 ### Work With the Splitted Lists
 
-We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where the TODODesignPattern comes in handy. I heard about it in this TODOTalk and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Function<Stream<T>, Void>`TODO WieKeinenRückgabewert. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and notPassed items.
+We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where a nice design pattern comes in handy. I heard about it in this [talk][talk] and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Consumer<Stream<T>>`. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and notPassed items.
 
 {% highlight java %}
 public class Splitter<T> {
 
     //...
 
-    public Splitter workWithPassed(Function<Stream, Void> func) {// TODO wie Function ohne rückgabewert?
+    public Splitter workWithPassed(Consumer<Stream<T>> func) {
         func.apply(passed.stream())
-        return this; // TODO Bennene das DesignPattern, (Cascade pattern -> Ist einfach schöner) 
+        return this;
     }
 
-    public Splitter workWithNotPassed(Function<Stream, Void> func) {// TODO wie Function ohne rückgabewert?
+    public Splitter workWithNotPassed(Consumer<Stream<T>> func) {
         func.apply(notPassed.stream())
-        return this; // TODO Bennene das DesignPattern, (Cascade pattern -> Ist einfach schöner) 
+        return this;
     }
 
 }
 {% endhighlight %}
+
+We used the cascade design pattern here, to make the use of multiple methods nicer. You will see it in the example down below.
 
 And that's basically our Splitter! Now, we can try out some examples on how to use it.
 
@@ -138,7 +142,7 @@ public void sendEmails(List<Candidates> candidates) {
 ## Conclusion
 That's it for today!
 
-We have learned how to create our first useful class with the help of Streams. We also optimized the run time of our program with it. Therefore, we have trained our knowledge about design patterns like TODO2Schreiben.
+We have learned how to create our first useful class with the help of Streams. We also optimized the run time of our program with it. Therefore, we have trained our knowledge about design patterns like the factory method and the cascade pattern.
 
 Lastly, we have tried out our splitter with some examples.
 
@@ -172,8 +176,4 @@ s.setAttribute('data-timestamp', +new Date());
 
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
-[part2]: https://flyingbytes.github.io/programming/java8/functional/part2/2017/02/04/Java8-Part2.html
-[javaDocCollection]: https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html
-[streamJavaDoc]: https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
-[javaDocArrays]: https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html
-[parallelStream]: https://docs.oracle.com/javase/tutorial/collections/streams/parallelism.html
+[talk]: https://youtu.be/e4MT_OguDKg?t=45m30
