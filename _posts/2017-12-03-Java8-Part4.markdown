@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "An Introduction to Functional Programming in Java 8: Part 4 - Splitter"
-date:   2017-02-18 13:00:00 +0100
+date:   2017-03-10 13:00:00 +0100
 categories: programming java8 functional part4
 ---
 Hello everybody,
@@ -17,14 +17,14 @@ You might have stumbled over a problem like this before: You have a collection o
 ### The Basic (and Slow) Approach
 
 {% highlight java %}
-public void splitAndPerform(Collection<T> items, Pedicate<T> splitBy, Function<T> passed, Function<T> notPassed) {
+public <T> void splitAndPerform(Collection<T> items, Predicate<T> splitBy, Consumer<T> passed, Consumer<T> notPassed) {
     items.stream()
         .filter(splitBy)
-        .forEach(passed)
+        .forEach(passed);
 
     items.stream()
-        .filter(Predicate.negate(splitBy))
-        .forEach(notPassed)
+        .filter(splitBy.negate())
+        .forEach(notPassed);
 }
 {% endhighlight %}
 
@@ -52,26 +52,26 @@ public class Splitter<T> {
         this.notPassed = notPassed;
     }
 
-    public splitBy(Predicate<T> test, Collection<T> items){
-        List<T> passed = new LinkedList<T>
-        List<T> notPassed = new LinkedList<T>
+    public static <T> Splitter<T> splitBy(Collection<T> items,Predicate<T> test) {
+        List<T> passed = new LinkedList<T>();
+        List<T> notPassed = new LinkedList<T>();
 
         items.stream()
                 .forEach(item -> {
-                    if(test.apply(item)){
-                        passed.add(item)
+                    if(test.test(item)){
+                        passed.add(item);
                         return;
                     }
-                    notPassed.add(item)
+                    notPassed.add(item);
                 });
 
-        return new Splitter(passed, notPassed);
+        return new Splitter<T>(passed, notPassed);
     }
 
 }
 {% endhighlight %}
 
-As you can see, we used the factory method pattern to make the creation of the app nicer. 
+As you can see, we used the factory method pattern to make the creation of the app nicer.
 
 Now that we can create a Splitter object, we want to give it some functionality.
 
@@ -84,13 +84,13 @@ public class Splitter<T> {
 
     //...
 
-    public Splitter workWithPassed(Consumer<Stream<T>> func) {
-        func.apply(passed.stream())
+    public Splitter<T> workWithPassed(Consumer<Stream<T>> func) {
+        func.accept(passed.stream());
         return this;
     }
 
-    public Splitter workWithNotPassed(Consumer<Stream<T>> func) {
-        func.apply(notPassed.stream())
+    public Splitter<T> workWithNotPassed(Consumer<Stream<T>> func) {
+        func.accept(notPassed.stream());
         return this;
     }
 
@@ -109,16 +109,15 @@ So first off, we want to split the list into even and odd numbers. After that, w
 
 {% highlight java %}
 public void workOnNumbers() {
-    List<Integer> numbers = Array.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
     Splitter.splitBy(numbers, num -> num%2 == 0)
-        .workWithPassed(passed -> 
-            passed.forEach(even -> System.out.printf("{0} -> {1}", even, even))
-        )
-        .workWithNotPassed(notPassed -> 
-            notPassed.map(odd -> odd * odd)
-                .forEach(even -> System.out.printf("{0} -> {1}", Math.sqrt(odd), odd))
-        );
+            .workWithPassed(passed ->
+                    passed.forEach(even -> System.out.println("" + even + " -> " + even)))
+            .workWithNotPassed(notPassed ->
+                    notPassed.map(odd -> odd * odd)
+                            .forEach(odd -> System.out.println("" + Math.sqrt(odd) + " -> " + odd)
+            ));
 }
 {% endhighlight %}
 
@@ -129,13 +128,13 @@ Now, we have a List of `Candidates`. All of them have a method `hasWon()`, which
 
 {% highlight java %}
 public void sendEmails(List<Candidates> candidates) {
-    Splitter.splitBy(candidates, Canditates::hasWon)
-        .workWithPassed(winners -> 
-           winner.forEach(winner -> SendEmail.send(winner.getEmail(), "You won!"));
-        )
-        .workWithNotPassed(losers -> 
-            losers.forEach(loser -> SendEmail.send(loser.getEmail(), "You lost, sorry!"));
-        );
+    Splitter.splitBy(candidates, Candidates::hasWon)
+            .workWithPassed(winners ->
+                    winners.forEach(winner -> Email.send(winner.getEmail(), "You won!"))
+    )
+    .workWithNotPassed(losers ->
+            losers.forEach(loser -> Email.send(loser.getEmail(), "You lost, sorry!"))
+    );
 }
 {% endhighlight %}
 
@@ -177,3 +176,4 @@ s.setAttribute('data-timestamp', +new Date());
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 [talk]: https://youtu.be/e4MT_OguDKg?t=45m30
+[part3]: https://flyingbytes.github.io/programming/java8/functional/part3/2017/02/18/Java8-Part3.html
