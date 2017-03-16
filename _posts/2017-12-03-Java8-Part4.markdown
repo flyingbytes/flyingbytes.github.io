@@ -39,7 +39,7 @@ So let's do this.
 
 The first step to building our splitter is to, you guessed it, split it.
 
-In our `splitBy()` function, we want to take a `Predeciate<T>` as a parameter and return a new `Splitter` object, which is basically an objects which consists of two Lists. One List consists of all the objects that passed the test, and the other one of all the objects that didn't pass the test.
+In our `splitBy()` function, we want to take a `Predeciate<T>` as a parameter and return a new `Splitter` object, which is basically an object which consists of two Lists. One List consists of all the objects that passed the test, and the other one of all the objects that didn't pass the test.
 
 {% highlight java %}
 public class Splitter<T> {
@@ -71,11 +71,11 @@ public class Splitter<T> {
 }
 {% endhighlight %}
 
-As you can see, we used the factory method pattern to make the creation of the app nicer.
+As you can see, we used the factory method pattern to make the creation of the Splitter nicer.
 
 Now that we can create a Splitter object, we want to give it some functionality.
 
-### Work With the Split Lists
+### 2. Work With the Split Lists
 
 We want to work with the Lists in the same way that we can work with Streams. But we don't want to recreate every function that a Stream has for our two lists. That's where a nice design pattern comes in handy. I heard about it in this [talk][talk] and it's a very cool way to use lambdas. We basically create two new functions, called `workOnPassedItems` and `workOnNotPassedItems`. They take a `Consumer<Stream<T>>`. Therefore, we can create a lambda and work inside it with a normal looking stream. This method will then be applied onto the List of passed and not passed items.
 
@@ -97,11 +97,11 @@ public class Splitter<T> {
 }
 {% endhighlight %}
 
-We used the cascade design pattern here, to make the use of multiple methods nicer. You will see it in the example down below.
+We used the cascade design pattern to make the use of multiple methods nicer. You will see it in the example down below.
 
 And that's basically our Splitter! Now, we can try out some examples on how to use it.
 
-#### Example 1: Showing numbers, but squaring all odd numbers
+### Example 1: Showing numbers, but squaring all odd numbers
 
 In this very first example we want to operate over a list of numbers. For each even number, we just want to print this number out. But for every odd number, we want to square them before we print them out.
 
@@ -121,9 +121,9 @@ public void workOnNumbers() {
 }
 {% endhighlight %}
 
-#### Example 2: Sending all Winners a Confirmation and all Losers a Cancellation
+### Example 2: Sending all Winners a Confirmation and all Losers a Cancellation
 
-Now, we have a List of `Candidates`. All of them have a method `hasWon()`, which gives back a boolean. Now, we want to split the List into Winners and Loser. After that, we want to send all Winners a confirmation that they won, and all losers a cancellation that they lost. So let's do this!
+Now, we have a List of `Candidates`. All of these people have a method called `hasWon()`, which gives back a boolean. We want to split the List into Winners and Losers. After that, we want to send all Winners a confirmation that they won, and all losers a cancellation that they lost. So let's do this!
 
 
 {% highlight java %}
