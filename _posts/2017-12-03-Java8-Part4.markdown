@@ -4,10 +4,6 @@ title:  "An Introduction to Functional Programming in Java 8: Part 4 - Splitter"
 date:   2017-02-18 13:00:00 +0100
 categories: programming java8 functional part4
 ---
-TODO letzter Absatz: Optimizing with a Builder Pattern
-TODO Was, wenn keins den Filter erfüllt? Dann leerer Stream?
-TODO Optimieren: Nur eine Function, die mir Stream gibt und ich in einem einzigen Lambda alles damit machen kann?
-
 Hello everybody,
 
 In the [last parts][part3], we've learned about the most basic ways to program functional in Java. We used functions as Objects, Streams and so on for this.
@@ -142,15 +138,13 @@ public void sendEmails(List<Candidates> candidates) {
 ## Conclusion
 That's it for today!
 
-We have learned a lot about Streams in Java. We learned how to convert a data structure into a Stream, how to work with a Stream and how to convert your Stream back into a data structure.
+We have learned how to create our first useful class with the help of Streams. We also optimized the run time of our program with it. Therefore, we have trained our knowledge about design patterns like TODO2Schreiben.
 
-I have introduced the most common methods and when you should use them.
+Lastly, we have tried out our splitter with some examples.
 
-In the end, we tested our knowledge with a bigger example where we greeted all birthday children.
+Next time, we will talk about RxJava. It's a framework that uses the observer pattern for asynchronus tasks and builds upon functional programming.
 
-In the next part of this series, we will have a big example where we are going to use Streams. But I won't tell you the example yet, so be surprised.
-
-Are there any Stream methods that you miss in the post? Please let me know in the comments. I'd love to hear your feedback too!
+Are there any things that your splitter should do too? Please let me know in the comments. I'd love to hear your feedback too!
 
 Thanks for reading and have a nice day,
 
