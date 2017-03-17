@@ -138,6 +138,38 @@ public void sendEmails(List<Candidates> candidates) {
 }
 {% endhighlight %}
 
+## Update: On Using partitioningBy
+
+After the post's out for a day now, a lot of you have given feedback. And I really appreciate it! You told me about ways to make the Splitter class better.
+
+One of the discussed things is the use of `Stream.collect(Collectors.partitioningBy(Predicate<T> test))`. And I totally agree that it could be useful in our scenario.
+
+It partitions the Stream depending on a test function. So for us, the map would look something like this: `{true: passed, false: notPassed}`. After that, we just take the two lists out of the map and go on.
+
+So as `Philboyd_Studge` mentioned on Reddit, the new `splitBy` method could look something like this:
+
+{% highlight java %}
+public static <T> Splitter<T> splitBy(Collection<T> items,Predicate<T> test) {
+
+        Map<Boolean, List<T>> map = items.stream()
+                .collect(Collectors.partitioningBy(test));
+
+        return new Splitter<T>(map.get(true), map.get(false));
+}
+{% endhighlight %}
+
+And I have to admit that this takes out a lot of noise. It just looks nicer than the `splitBy` method above. So thank you for that!
+
+### So what's the Splitter's Right to Exist?
+
+The Splitter's purpose is to demonstrate how you can work with functions as objects. Its purpose is *not* to replace  some methods in the JDK.
+
+It's a class for learning and playing around. If you want to tweak around, just do it. Please leave a comment on what you have learned or where you have optimized the class, so that others can learn from it too.
+
+In addition, we learned about design patterns. Some of you even told me that they learned new design patterns in this blog post.
+
+The patterns help to make the syntax nicer. When you split your collection in two parts, it's nicer to use the cascade pattern in the Splitter than to handle a Map.
+
 ## Conclusion
 That's it for today!
 
@@ -176,4 +208,4 @@ s.setAttribute('data-timestamp', +new Date());
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 [talk]: https://youtu.be/e4MT_OguDKg?t=45m30
-[part3]: https://flyingbytes.github.io/programming/java8/functional/part3/2017/02/18/Java8-Part3.html
+[part3]: https://flyingbytes.github.io/programming/java8/functional/part3/2017/02/18/Java8-Part3.html.
