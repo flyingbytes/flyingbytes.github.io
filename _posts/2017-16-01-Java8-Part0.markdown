@@ -71,7 +71,7 @@ public class Utils {
     private static Time time;
 
     public static String currTime() {
-        return time.now().toString();
+        return time.getTime().toString();
     }
 
 }
@@ -81,13 +81,13 @@ If you use `currTime` twice, the result will be different, because the time will
 (which is none), `currTime` had two different results!
 
 This can't happen in *fP*. Every method only depense on its parameters and on nothing else! So if we want to do something like this,
-the Time object has to be a parameter of `currTime`:
+the Time object, which should be a set time, has to be a parameter of `currTime`:
 
 {% highlight java %}
 public class Utils {
 
-    public static String currTime(Time time) {
-        return time.now().toString();
+    public static String currTime(FixedTime time) {
+        return fixedTime.now().toString();
     }
 
 }
