@@ -8,7 +8,7 @@ Let's face it: I'm an Android fanboy.
 
 The Android Platform is one of my favourite, if not my most favourite, platform to develop for. 
 
-I want to tell you exaclty why I think Google makes a good job regarding Android. Nevertheless, I want to highlight some problem too, because let's face it TODO2x: Nobody's perfect.
+I want to tell you exaclty why I think Google makes a good job regarding Android. Nevertheless, I want to highlight some problem too, because be realistic: Nobody's perfect.
 
 ## The Development Enviroment
 
@@ -18,15 +18,47 @@ However, Android Studio is meant to do this job to a almost perfect . You can te
 
 ## The Language
 
-I like Java very much. In my opinion, static typing makes much more sense in big applications than dynamic typing. But I also like the design decisions behind the syntax. The functional programming techniques, which were introduced in Java 8, are a implemented nice into Java's ecosystem. If you want to learn more about them, check out my other posts TODOVerweis.
+I like Java very much. In my opinion, static typing makes much more sense in big applications than dynamic typing. But I also like the design decisions behind the syntax. The functional programming techniques, which were introduced in Java 8, are a implemented nice into Java's ecosystem. If you want to learn more about them, check out my [other posts][blog].
 
 Everytime I read or work with Android Code, the language doesn't get in my way. It just makes sense and is easy to understand.
 
 ## The Bug Bounty System
 
-Breaking other peoples code is a real pleasure for me. Getting inside a developers mind and exploiting common code habits can can keep me busy for a whole weekend. And bug bounty reports TODO Link are by far the most facinating blog posts for me.
+Breaking other peoples code is a real pleasure for me. Getting inside a developers mind and exploiting common code habits can can keep me busy for a whole weekend. And [bug bounty reports][bug] are by far the most facinating blog posts for me.
 
-However, this task is even more rewarding now, because Google expanded it's bug bounty program onto some Android Apps last week TODO Link. You can make real money now reporting issues you found and learn so much about the Android system while doing this.
+However, this task is even more rewarding now, because Google expanded it's [bug bounty program][bounty] onto some Android Apps last month. You can make real money now reporting issues you found and learn so much about the Android system while doing this.
+
+## The Testing Enviroment
+
+As a notorious tester, I want to be save that everythin is well tested and works as expected. Android makes it so easy to do so. Espresso and Rebolectric are so intuitive and they just **work**. If you throw Kotlin also in this pod, you can make your tests even more readable with extension functions.
+
+It just feels right to write tests. This is so good in an enviroment where few people practice TDD and just hope on their luck to find bugs.
+
+## The community
+When I'm working on a new project, it's always easy to get started. The amazing work Google does at documanting Android features is one of the best reasons for that.
+
+However, everytime I have a problem, there is someone in an IRC chat or email list who can give me a quick answer. On other platforms I developed for, I haven't got this kind welcomed feeling
+
+But of course, not everything's good about Android. There are still problems which this platform has and which simply annoy me as a developer
+
+## New year = New Android Version
+
+Let's be clear: It's awesome when a platform develops over time. But maybe Google should gibe us the time to really embrace new features.
+
+Not even a [quarter][Users] the Android users use Android N right now. Still, there is Orea coming up right now. 
+
+There is a reason why I don't buy books about Android development. They're already outdated the day they come out.
+
+You cannot use all of the new feautres and upgrade the minimum SDK Version of your app. This is because most of the users aren't buying a new phone with the latest Android version every year. Phone Manifactures don't provide new Android Versions to their old and low-budget phones. 
+
+Google should just give the developers and users more time to adapt a new Android Version.
+
+## Conclusion
+
+To sum everything up: The Android platform is an superb plaform for developers. oogle provides an awesome IDE and documentation. The community is amazing too.
+
+However, it's not perfect. Google should slow the release cycle down so that the developers and users can adapt better to every new Android Version.
+
 
 In the [last parts][part3], we've learned about the most basic ways to program functional in Java. We used functions as Objects, Streams and so much more.
 
@@ -229,5 +261,7 @@ s.setAttribute('data-timestamp', +new Date());
 
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
-[talk]: https://youtu.be/e4MT_OguDKg?t=45m30
-[part3]: https://flyingbytes.github.io/programming/java8/functional/part3/2017/02/18/Java8-Part3.html
+[Users]: https://www.statista.com/statistics/271774/share-of-android-platforms-on-mobile-devices-with-android-os/
+[blog]: https://flyingbytes.github.io/programming/java8/functional/part0/2017/01/16/Java8-Part0.html
+[bug]: https://medium.freecodecamp.org/messing-with-the-google-buganizer-system-for-15-600-in-bounties-58f86cc9f9a5
+[bounty]: https://www.google.com/about/appsecurity/android-rewards/
