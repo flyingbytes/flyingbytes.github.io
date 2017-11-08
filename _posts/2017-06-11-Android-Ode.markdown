@@ -30,14 +30,14 @@ However, this task is even more rewarding now, because Google expanded it's [bug
 
 ## The Testing Environment
 
-As a notorious tester, I want to be save that everything is well tested and works as expected. I don't want to release buggy apps. Android makes it so easy to do so. Espresso and Rebolectric are so intuitive and just **work**. And if you also use Kotlin in your projects, it's easy to make your tests even more readable with extension functions.
+As a notorious tester, I want to be save that everything is well tested and works as expected. I don't want to release buggy apps. Android makes it so easy to do so. Espresso and Robolectric are so intuitive and just **work**. And if you also use Kotlin in your projects, it's easy to make your tests even more readable with extension functions.
 
 It just feels right to write tests. This is so important in an environment where few people practice TDD and just rely on luck to find bugs.
 
 ## Contributing
 When I'm working on a new project, it's always easy to get started. The amazing work Google does at documenting Android features is one of the best reasons for that.
 
-What's more, every time I have a problem, there is someone in an IRC chat or part of an email list who can give me a quick answer. When I develop for other platforms , I haven't got this kind of invitate feeling in their communities.
+What's more, every time I have a problem, there is someone in an IRC chat or part of an email list who can give me a quick answer. When I develop for other platforms, I haven't felt this invited in their communities.
 
 ---
 
@@ -55,11 +55,11 @@ Google should just give the developers and users more time to adapt to a new And
 
 ## Conclusion
 
-To sum everything up: The Android platform is an superb plaform for developers. Google provides an awesome IDE and documentation which doesn't leave anyone behind. The community is amazing as well.
+To sum everything up: The Android platform is an superb platform for developers. Google provides an awesome IDE and documentation which doesn't leave anyone behind. The community is amazing as well.
 
 Still, the system's not perfect. Google should slow down the release cycle so that the developers and users can adapt better to every new Android version.
 
-What's your opinion to all of this? Which parts of the Android ecosystem do you love or hate? Please write a comment and check out my other blog posts too!
+What's your opinion on all of this? Which parts of the Android ecosystem do you love or hate? Please write a comment and check out my other blog posts too!
 
 Thanks for reading and have a nice day,
 
