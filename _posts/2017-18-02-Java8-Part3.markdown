@@ -256,7 +256,7 @@ public void testIfNameIsStored() {
 {% endhighlight %}
 
 ### Shortcuts of Shortcuts
-And after I showed you some shortcut methods, I want to tell you that there are many more. There are even shortcuts of shortcuts! One Example would be `forEachOrdered`, which combines `forEach` and `sorted`.
+And after I showed you some shortcut methods, I want to tell you that there are many, many more. There are even shortcuts of shortcuts! One Example would be `max`, which combines `sorted` and `findFirst`.
 
 If you are interested in other helpful methods, look into the [JavaDoc][streamJavaDoc]. I'm sure you are prepared to understand it and find the methods that you need. Always remember: If your code looks ugly, there's a better method to use ;).
 
