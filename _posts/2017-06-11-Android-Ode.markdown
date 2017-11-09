@@ -31,7 +31,7 @@ However, this task is even more rewarding now, because Google expanded it's [bug
 
 ## The Testing Environment
 
-As a notorious tester, I want to be save that everything is well tested and works as expected. I don't want to release buggy apps. Android makes it so easy to do so. Espresso and Rebolectric are so intuitive and just **work**. And if you also use Kotlin in your projects, it's easy to make your tests even more readable with extension functions.
+As a developer who cares a lot about testing, I want to make sure that every released app of mine works as intended. I don't want to release buggy software. Android makes it so easy to do so. Espresso and Rebolectric are so intuitive and just **work**. And if you also use Kotlin in your projects, it's easy to make your tests even more readable with extension functions.
 
 It just feels right to write tests. This is so important in an environment where few people practice TDD and just rely on luck to find bugs.
 
