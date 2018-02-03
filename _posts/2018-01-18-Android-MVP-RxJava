@@ -1,0 +1,57 @@
+# Upgrade MVP with RX and Kotlin
+
+Hi, folks!
+
+Today, I want to give you some deeper insight in structuring your Android app code.  First of, I will tell you what the "Model View Presenter" framework is and how it works. Next off, we will look at the ReactiveX library, which we will use for handling I/O. And in the end, we will connect MVP and RX to make our code much more elegant.
+
+## The MVP Pattern
+
+Let's start with a short story of mine. Back in 2015, I created a App for translating common food that TODOproduces allergies into different language TODOLink. And last week, I wanted to add a new feature in the app. 
+
+However, I was not capable of understanding my very own code! A small tweak that could've been finished in ten minutes or so TODOwasted my whole afternoon. I had to rewrite the complete app to finaly add a little button.
+
+The main issue I had with the code was that I wrapped the whole code into one class. There was no cut between the code that displays code and the one that manipulates data. But there is a a design pattern that helps you to prevent the mess: Model View Presenter.
+
+### What is the MVP Pattern 
+
+In short, the MVP pattern splits the UI(view) layer from the data(model) layer. Every communication between the two of them has to go TODOthroguh the so called presenter. 
+
+For example, when the user presses a save button, the view calls the presenter with the data that has to be saved. Now, the presenter calls the model with the data that should be stored. 
+
+If you might ask yourself now how all of this TODOdiffers from MVC, I want to give you the answer. In MVC, if the model changes, it will directly call the view to update the displayed data. But in MVP, the model just calls the presenter, which after this calls the view to update. In short words: In MVP, the View doesn't know about the existence of the model layer. This makes it easy for us to mock the model and test the UI with fake data.
+
+If you want to learn more about MVP check out this blog post by Antonio Leiva TODO https://antonioleiva.com/mvp-android/ or this one by Eric Maxwell. They are worth reading and show you in easy project how to implement the MVP pattern. You should at least build a small project with the MVP pattern in mind before you go on reading more here.
+
+As you can see, the Acitivty has a internal stored presenter. The presenter has both a representation of it's view and it's model. However, our model here doesn't need a connection to the presenter in this example, because we don't change the model independenntly, without using the presenter. Therefore, the presenter always know when the model changes and doesn't need to be called again.
+
+
+## The RX Project
+
+The RX API is a really easy way for us to handle asyncronus tasks in an app. If you every used `AsyncTask` in Java to show a dialog while downloading data in the background, you will find the TODOAnsatz that RX uses much easier to use while producing cleaner code.
+
+In short, RX is nothing more than a implementation of Observer pattern. Firs off, you have an object that changes (the Observable). It might be a TextEdit field that changes the text inside it. Next off, you have objects that get notified when the Observable changes, the so called Subscribers. If you have understand that, you should be able to work with RX. 
+
+If you want to read a good beginners guide for RX used in a Kotlin Android app, go check out this guide by Ahmed Rizwan: https://medium.freecodecamp.org/rxandroid-and-kotlin-part-1-f0382dc26ed8 .
+
+## Combining both of them
+
+Right now, you should have a basic understanding on how to structure your code with MVP in mind, and you should know the basic functionallity of RX. Now we want to combine them in one app.
+
+For this, we will create a book notes app. You can use it to store notes you made while reading a book
+
+If you want to follow, please download the app from GitHub : TODO
+
+TODO Dateistruktur:
+
+TODO Eigenen MVP Blog Post
+First of all, you can see that we split the app into the three packages model, view, presenter. The model package contains all of the `Book` class, together with the Database and DAO class which we need for persistence. Next off, the view package includes the MainActivity plus a MainView, which the presenter uses to program TODO against. The presenter package contains a basic Presenter interface and a implimentation for the Presenter of the Main View.
+
+TODO Eigenen RX Post
+
+As you can see, RX helps us to use the Room DB in our app. Because it could block the UI when we work with the db on the main thread, we can acomplish this with RX TODO Code. Everytime the DB is finsihed with it's task, it calls the UI to change it. 
+
+Some nice thing to do here to are to implement Anko. With it, it's really easy to create Dialogs like the one you see when adding a new book. We also use a volley for a standard HTTP GET Request. For this, we just create a StringRequest and add it to a queue. It's really easy and not as hard as to use barebone TODOHttpRequest objects.
+
+
+
+TODO Unterschied zu MVC
