@@ -16,7 +16,7 @@
 title: Flying Bytes
 email: wuensche.niklas@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
-    Guides for Java 8
+    Guides for Java/Kotlin, Functional Programming and All Things Android
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "flyingbytes.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  nwuensche
