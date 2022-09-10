@@ -5,7 +5,7 @@ date:   2022-09-10 10:00:00 +0100
 categories: programming android kotlin native C Programming Interop Interoperability 
 ---
 
-**TL;DR**: Calling C Code in Kotlin Native is very simple and much more intuitive then using the corresponding JVM-"Java Native Interface" (JNI). If you just want to see the code, jump TODOhere.
+**TL;DR**: Calling C Code in Kotlin Native is very simple and much more intuitive then using the corresponding JVM-"Java Native Interface" (JNI). However, the sample code from TODORefJetbrains is too hard for C beginnings, hence I wrote this blog post. If you just want to see the tutorial, jump TODOhere, the code is also on TODORefGitHub
 
 Hello everybody,
 
@@ -13,7 +13,32 @@ When I'm not developing some Android App, I enjoy learning more about the Kotlin
 
 Unfortunately, the one downside of Kotlin Native in comparison to "JVM-Kotlin" is the of loss of all Java/JVM-Libraries. The JVM is known for its rich ecosystem of libraries and frameworks. You lose all that when using Kotlin Native, as your program does not use the JVM at all. However, you still have another option left to add other people's code. And this is through C-Libraries. Like on the JVM, there is a rich ecosystem of C-libs which one can use. 
 
-But the big question is: **How do you add those C-libs to your code?**
+The big question is: **How do you call C libraries from your Kotlin Native code?**
+
+
+There is already a [tutorial by Jetbrains](https://kotlinlang.org/docs/native-c-interop.html). However, I found it way too difficult  for a C beginner like me. For example, I don't know where header-files or shared objects are located on my device, and I don't know how linking of these into your code works. I will fill these gaps in this blog post.
+
+TODORef In the first part of this blog post, we will link an already existing C-library (VLC) into our Kotlin Native, and play some music with it. We learn more about the C-infrastructure, which files one needs to use the interop, and how we can use the Gradle build system to call the C code in our Kotlin Code. TODORef In the second part of this blog post, we will create our own small C-lib and execute it in our Kotlin Native code. Here, we learn more about C and its build-system in general.
+
+TODO Somewhere else?
+For the sake of completeness, I want to mention the JNI. If you have a background in JVM-development, you probably heared of the Java Native Interface (JNI) TODO Cref. This is a protocol which allows you to call C code on the JVM. However, it is very cumbersome to use. For example, you have to write additional C-adapter to wrap the C-lib you want to use. With Kotlin Native, all of this is way easier, and you don't have to write any additional adapter-code, Gradle does all of this for you under the hood.
+
+
+## Linking a C library into your Kotlin Native Code
+
+Next, we will link the VLC-C-Library into our Kotlin Native code. It is a really easy and well documented library to play back music. Our goal is to play back some sound in our Kotlin Native Code through the C-library. 
+
+This tutorial should work on all UNIX-Systems (Linux and Mac). On windows, you have to download the C-library yourself, but the code should work as well.
+
+We have four small steps to do
+
+1. Create a new Kotlin Native Project
+2. Download the VLC-Shared-Object-File and -Header-File
+3. Add the VLC-Files to our Gradle-Build-Task
+4. Call the lib to play back sound.
+
+
+
 
 
 
