@@ -36,7 +36,7 @@ We have four small steps to do
 
 1. Create a new Kotlin Native Project
 2. Download the VLC-Library
-3. Add the VLC-Files to our Kotlin Native Project
+3. Link the VLC-Files to our Kotlin Native Project
 4. Call the lib to play back sound.
 
 ### 1. - Create a new Kotlin Native Project
@@ -54,7 +54,7 @@ OSX/Mac: brew install --cask vlc
 
 With this, you download two files. The first one is the `libvlc.so` file. This is the "shared object", which basically contains the  actual code of the vlc-library. Under most distributions, it is either located under `/lib`, `/lib64`. If you look inside the shared object, you will see that it is binary file, so you can't read it at all.  The second file that was installed is `vlc.h`. This is the header-file, and it should be located at `/usr/include` or `/usr/include/vlc`. This file you can actually read, and it tells you what the shared object actually contains. In Kotlin terminology, the header is like an "interface" of the shared object "class". 
 
-### 3. - Add the VLC-Files to our Kotlin Native Project
+### 3. - Link the VLC-Files to our Kotlin Native Project
 
 In the third step, we connect these two vlc-files to our kotlin project. First of, in our Kotlin project, we create the folders `nativeInterop/cinterop`, where `nativeInterop` is on the same level as the already existing `nativeMain` folder. Note that the `I` in `nativeInterop` is capitalized, while the `i` in `cinterop` is not (this is important).
 
@@ -113,86 +113,103 @@ fun main(args: Array<String>) {
 
 You can put any `sound.mp3` file in the root-`CInteropProject` folder of your project, or adapt the `SOUND_FILE` variable as needed. This code will play back ten seconds of sounds.
 
-Hooray, you used C code in your Kotlin project!
-
-If your IDE can't find the `libvlc_...`-functions, or can't import `libvlc.*`, then try to re-sync the Gradle file. For me, it worked by adding a useless character to the `build.gradle.kts` file, then syncing (thus creating an error)`, then removing the character again and re-syncing the project. 99% of the time, this solved the import-issue.
+Hooray, you used C code in your Kotlin project!  You can find the final project on GitHub TODORef
 
 TODO Windows
 
-TODO Add Sound File + Quelle
-Now we go into de
+If your IDE can't find the `libvlc_...`-functions, or can't import `libvlc.*`, then try to re-sync the Gradle file. For me, it worked by adding a useless character to the `build.gradle.kts` file, then syncing (thus creating an error)`, then removing the character again and re-syncing the project. 99% of the time, this solved the import-issue.
+
+Next of, we want to take a short detour and create our own C-library and call it from the Kotlin project
+
+## Create and Call your own C Library from Kotlin Native Code
+
+Now, we want to create a small C library called `helloworld`. It contains a function `hello()` that prints `Hello World!` and returns `42`. Afterwards we want to call this function from our Kotlin code.
+
+### Create a C library 
+
+As you know from the first part of this blog, we need a shared object and a header file to call C code from our Kotlin project. The header is relatively easy, as it is human readable. 
+
+Create the file `helloworld.h` and insert the following code:
+
+```
+#include <stdio.h>
+int hello();
+```
+
+We need the `stdio.h` header file to call `printf` in the C code afterwards. Next, copy this file to the other header files in the `/usr/include/` folder.
+
+Next, we need to create a shared object file which contains the actual code. First, we need to create a `helloworld.c` file with the following content:
+
+```
+#include <stdio.h>
+int hello() {
+  printf("Hello World!\n");
+  return 42;
+}
+```
+
+As you can see, the function `hello` prints "Hellow World!" to the console and returns 42.
+
+TODO Windows
+Next, we need to compile this c-file to a shared object. We do this with the following command:
+
+```
+gcc -shared -o libhelloworld.so helloworld.c
+```
+TODO Test without -fPIC works.
+
+The command should be rather self-explanatory. We copy the `libhelloworld.so` file to `/lib`
+
+Afterwards, we do the same things as for the vlc-library. First of, we in `cinterop`, we create a new `libhelloworld.def` file with the following content:
 
 
+```
+compilerOpts = -I /usr/include
+headers = helloworld.h
 
+linkerOpts = -L /lib64 -L /lib64/vlc  -L /lib -L /opt/local/lib -L /opt/local/lib/vlc -L /usr/local/opt/ -L /usr/local/opt/vlc -l helloworld
+```
 
-
-
-
-TODO Copy so/h in project, but don't put on github. (Add script to add them and add to gradle task to download)
-
-As some of you know, [Context Receivers][CR] are a new, unstable feature added in Kotlin 1.6.20. I find them really interesting, as they are a syntactical generalization of extension functions (although extension functions and context receiver are used in different semantic cases, see [this video][CRVid] for an explanation). 
-
-As I went along trying out Context Receivers, I found it rather difficult to enable them for toying around.
-Unfortunately, I am missing the usual step-by-step tutorial by JetBrains. They only tell us that we have to [add a compile flag][CF], but this does not help much. And most blog posts skip this step as well. Even Stack Overflow does not help this time! This blog post should help everyone who has the same problem enabling Context Receivers without wasting as much time as I did searching for the necessary actions.
-
-Of course, all of this could change dramatically when the feature becomes stable over time. This guide is from June 2022, and I use Android Studio Chipmunk as my IDE.
-
-## 0. Add Context Receiver to Code
-
-Before we enable Context Receivers, we add the following class somewhere in our app:
+Next, we add the following line to the `build.gradle.kts`:
 
 ```kotlin
-context(Unit)
-class Test()
-```
-
-To make this compile, we have to do the following two actions:
-
-## 1. Update Kotlin Language Features
-
-To fix the "Expecting a top level declaration" compile error, first, we have to enable the language features of Kotlin 1.6.20 (or higher). We do this by updating the used Kotlin version inside the `build.gradle` file of the project folder:
-
-```groovy
-plugins {
-    ...
-    id 'org.jetbrains.kotlin.android' version '1.6.20' apply false #Or anything higher than 1.7.0
+nativeTarget.apply {
+      ...
+      compilations.getByName("main") {
+          cinterops {
+              val libvlc by creating
+              val libhelloworld by creating //Add this line
+          }
+      }
+      ...
 }
 ```
 
-This fixes the error.
+The sync the project and add the following lines to your `Main.kt`:
 
-## 2. Enable Context Receivers
+```kotlin
+import libhelloworld.*
 
-To fix the "The feature 'context receivers' is experimental and should be enabled explicitly" compile error, we have to set the following compile flag inside the `build.gradle` file of the `app` module folder:
-
-
-```groovy
-android {
-  kotlinOptions {
-    ...
-    freeCompilerArgs += "-Xcontext-receivers"
-  }
+fun main(args: Array<String>) {
+    val x = hello() //should be 42
+    println("Return value was $x")
 }
 ```
 
-Now, the code compiles. Congratulations!
+Now, your C should work, congratulations! Again, if it does not compile, try to resync the Gradle-file.
+
+You can find the final project on GitHub TODORef
+
+TODO Add Sound File + Quelle
 
 ## Conclusion
 
 That's it for today!
 
-You have seen the necessary steps to enable Context Receivers in any Android app. 
+You have seen the necessary steps to include C code in your Kotlin Native project. Additionally, you have seen how to create a C library yourself.
 
-Unfortunately, Android Studio (Chipmunk) still shows a syntax error when using Context Receivers. However, the code still compiles and works. Do you know any way to remove this error? If so, please present it in the comment section below.
-
-Please leave a comment if this post helped you or if you have any questions regarding this blog post.
-
+Please leave an email if this post helped you or if you have any questions regarding this blog post.
 
 Thanks for reading and have a nice day,
 
 Niklas
-
-
-[CR]: https://blog.jetbrains.com/kotlin/2022/02/kotlin-1-6-20-m1-released/
-[CRVid]: https://www.youtube.com/watch?v=GISPalIVdQY
-[CF]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md#prototype
