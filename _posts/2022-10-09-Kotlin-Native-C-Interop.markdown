@@ -6,6 +6,7 @@ categories: programming android kotlin native C Programming Interop Interoperabi
 ---
 
 **TL;DR**: Calling C Code in Kotlin Native is very simple and much more intuitive then using the corresponding JVM-"Java Native Interface" (JNI). However, the sample code from TODORefJetbrains is too hard for C beginnings, hence I wrote this blog post. If you just want to see the tutorial, jump TODOhere, the code is also on TODORefGitHub
+TODO In GitHub auch auf Blog ref
 
 Hello everybody,
 
@@ -20,6 +21,8 @@ There is already a [tutorial by Jetbrains](https://kotlinlang.org/docs/native-c-
 
 TODORef In the first part of this blog post, we will link an already existing C-library (VLC) into our Kotlin Native, and play some music with it. We learn more about the C-infrastructure, which files one needs to use the interop, and how we can use the Gradle build system to call the C code in our Kotlin Code. TODORef In the second part of this blog post, we will create our own small C-lib and execute it in our Kotlin Native code. Here, we learn more about C and its build-system in general.
 
+This tutorial should work on Linux-, OSX/MAC-, and Windows-Systems.
+
 TODO Somewhere else?
 For the sake of completeness, I want to mention the JNI. If you have a background in JVM-development, you probably heared of the Java Native Interface (JNI) TODO Cref. This is a protocol which allows you to call C code on the JVM. However, it is very cumbersome to use. For example, you have to write additional C-adapter to wrap the C-lib you want to use. With Kotlin Native, all of this is way easier, and you don't have to write any additional adapter-code, Gradle does all of this for you under the hood.
 
@@ -28,14 +31,97 @@ For the sake of completeness, I want to mention the JNI. If you have a backgroun
 
 Next, we will link the VLC-C-Library into our Kotlin Native code. It is a really easy and well documented library to play back music. Our goal is to play back some sound in our Kotlin Native Code through the C-library. 
 
-This tutorial should work on all UNIX-Systems (Linux and Mac). On windows, you have to download the C-library yourself, but the code should work as well.
 
 We have four small steps to do
 
 1. Create a new Kotlin Native Project
-2. Download the VLC-Shared-Object-File and -Header-File
-3. Add the VLC-Files to our Gradle-Build-Task
+2. Download the VLC-Library
+3. Add the VLC-Files to our Kotlin Native Project
 4. Call the lib to play back sound.
+
+### 1. - Create a new Kotlin Native Project
+
+To create a new Kotlin Native Project, just install IntelliJ, create a new Project, and there click on "Kotlin Multiplatform -> Native Application". Let's call it the "CInteropProject". Now finish initalization and build the project.
+
+### 2. - Download the VLC-Library
+
+Next off, we will download the VLC-Files. I can't just give you the files, because they depend on the architecture of your machine, hence you have to download them through the package manager of your OS (Or build them yourself). Most of the time, the package is called something like `libvlc`, `vlc-devel`, or `vlc-dev`. Here are the command for the most common distributions:
+
+Ubuntu/Linux Mint/Debian/...: `sudo apt install libvlc-dev`
+Fedora/RHEL/CoreOS/...: `sudo dnf install libvlc-devel`
+Arch Linux/Manjaro/...: `sudo pacman -S libvlc`
+OSX/Mac: brew install --cask vlc
+
+With this, you download two files. The first one is the `libvlc.so` file. This is the "shared object", which basically contains the  actual code of the vlc-library. Under most distributions, it is either located under `/lib`, `/lib64`. If you look inside the shared object, you will see that it is binary file, so you can't read it at all.  The second file that was installed is `vlc.h`. This is the header-file, and it should be located at `/usr/include` or `/usr/include/vlc`. This file you can actually read, and it tells you what the shared object actually contains. In Kotlin terminology, the header is like an "interface" of the shared object "class". 
+
+### 3. - Add the VLC-Files to our Kotlin Native Project
+
+In the third step, we connect these two vlc-files to our kotlin project. First of, in our Kotlin project, we create the folders `nativeInterop/cinterop`, where `nativeInterop` is on the same level as the already existing `nativeMain` folder. Note that the `I` in `nativeInterop` is capitalized, while the `i` in `cinterop` is not (this is important).
+
+In the`cinterop`-folder, we add a `libvlc.def` file, which contains the locations of the vlc-files. This file contains the following configurations:
+
+
+```
+compilerOpts = -I /usr/include
+headers = vlc/vlc.h
+
+linkerOpts = -L /lib64 -L /lib64/vlc  -L /lib -L /opt/local/lib -L /opt/local/lib/vlc -L /usr/local/opt/ -L /usr/local/opt/vlc -l vlc
+```
+
+The `compilerOpts` options tells Gradle where to search for header files (in `/usr/include` folder). The `headers` option tells Gradle that we want to add the `/usr/include/vlc/vlc.h` header to our project. In the `linkerOpts` option, the `-L` parameters tell Gradle where to search for shared-object files. I added a lot of different folders so that this project runs on as many distributions as possible. The `-l` parameter in the end tells Gradle that we want to add the `libvlc.so` file to our project. As you can see, to add `libX.so` file to our project, the parameters has to be `-l X`
+
+Afterwards, we have to tell Gradle that it should execute the def-file and create Kotlin-bindings for the C-Code in the vlc-header. We do this by adding the following code in our `build.gradle.kts` file, and there in the already existing ` nativeTarget.apply` block: 
+
+
+```kotlin
+nativeTarget.apply {
+      ...
+      compilations.getByName("main") {
+          cinterops {
+              val libvlc by creating
+          }
+      }
+      ...
+}
+```
+
+After we sync the project, Gradle created Kotlin functions for our code that match the functions in the `vlc.h` header file. This is an incredible improvement over the JNI, where we had to write these functions ourself.
+
+### 4. Call the lib to play back sound.
+
+Now, everything is combined and we can use the vlc-code in our project. As gradle created functions with the same function names as the ones in the vlc-header file, we can easily adapter the libvlc example code from TODORef [here](https://wiki.videolan.org/LibVLC_Tutorial/) to play back sound for our project. Add the following code to your `Main.kt` file:
+
+```
+import libvlc.*
+import platform.posix.sleep
+
+fun main(args: Array<String>) {
+    val SOUND_FILE = "sound.mp3"
+
+    val inst = libvlc_new(0, null)
+
+    val m = libvlc_media_new_path(inst, SOUND_FILE)
+
+    val mp = libvlc_media_player_new_from_media(m)
+
+    libvlc_media_release(m)
+
+    libvlc_media_player_play(mp)
+    sleep(10)
+}
+```
+
+You can put any `sound.mp3` file in the root-`CInteropProject` folder of your project, or adapt the `SOUND_FILE` variable as needed. This code will play back ten seconds of sounds.
+
+Hooray, you used C code in your Kotlin project!
+
+If your IDE can't find the `libvlc_...`-functions, or can't import `libvlc.*`, then try to re-sync the Gradle file. For me, it worked by adding a useless character to the `build.gradle.kts` file, then syncing (thus creating an error)`, then removing the character again and re-syncing the project. 99% of the time, this solved the import-issue.
+
+TODO Windows
+
+TODO Add Sound File + Quelle
+Now we go into de
+
 
 
 
