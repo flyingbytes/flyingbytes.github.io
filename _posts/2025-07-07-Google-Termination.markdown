@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "How Google Shut Down my Android Play Store Account and Killed my Business"
+title:  "How Google Shut Down My Android Play Store Account and Killed My Business"
 date:   2025-07-07 15:00:00 +0100
 categories: programming android kotlin context receiver contextreceiver kotlin17 kotlin1620
 ---
