@@ -10,6 +10,8 @@ categories: programming android kotlin context receiver contextreceiver kotlin17
 
 *In case Google's reading this, my ticket numbers are 0-2181000039046 (new account) and 5-7732000037267  (old account).*
 
+Update August 2025: Someone mentioned that I should have deleted my old account by hand instead of letting it automatically block. However, since then I've been able to re-enable the old account and properly delete it. However, the new account is still blocked and Google support does not want to enable it. So that's also not the issue I'm facing
+
 Over the years, I've read in multiple blog posts like [this](https://medium.com/@raffaelet/my-seven-years-old-google-play-developer-account-has-been-terminated-ed321754cd51), [this](https://www.reddit.com/r/androiddev/comments/1clee9k/company_account_got_terminated_for_vague_reason/?share_id=jnvFTWsncgXF-CKVOCjCk&utm_content=1&utm_medium=android_app&utm_name=androidcss&utm_source=share&utm_term=1), or [that](https://www.reddit.com/r/androiddev/comments/1cle2uj/google_developer_account_terminated_after_getting/) about Google shutting down other people's developer accounts for arbitrary reasons. 
 
 
